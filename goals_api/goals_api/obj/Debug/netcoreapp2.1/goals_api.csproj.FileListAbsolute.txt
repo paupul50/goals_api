@@ -12,3 +12,17 @@ C:\Users\pulei\source\repos\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_ap
 C:\Users\pulei\source\repos\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.RazorTargetAssemblyInfo.cache
 C:\Users\pulei\source\repos\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.dll
 C:\Users\pulei\source\repos\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.pdb
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\bin\Debug\netcoreapp2.1\goals_api.deps.json
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\bin\Debug\netcoreapp2.1\goals_api.runtimeconfig.json
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\bin\Debug\netcoreapp2.1\goals_api.runtimeconfig.dev.json
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\bin\Debug\netcoreapp2.1\goals_api.dll
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\bin\Debug\netcoreapp2.1\goals_api.pdb
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.csprojAssemblyReference.cache
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.csproj.CoreCompileInputs.cache
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.RazorAssemblyInfo.cache
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.RazorAssemblyInfo.cs
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.AssemblyInfoInputs.cache
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.AssemblyInfo.cs
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.RazorTargetAssemblyInfo.cache
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.dll
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api\obj\Debug\netcoreapp2.1\goals_api.pdb
