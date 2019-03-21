@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using goals_api.Helpers;
+using goals_api.Models.DataContext;
 using goals_api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -14,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-
+using Microsoft.EntityFrameworkCore;
 namespace goals_api
 {
     public class Startup
@@ -58,6 +59,8 @@ namespace goals_api
 
             // configure DI for application services
             services.AddScoped<IUserService, UserService>();
+            services.AddEntityFrameworkSqlServer().AddDbContext<DataContext>(options
+                => options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace goals_api.Models
+namespace goals_api.Dtos.User
 {
-    public class User
+    public class UserCreateDto
     {
         [Required]
         [StringLength(50)]
@@ -15,11 +15,10 @@ namespace goals_api.Models
         [StringLength(50)]
         public string LastName { get; set; }
         [EmailAddress]
-        [Key]
         [StringLength(50)]
         public string Username { get; set; }
         [Required]
+        [StringLength(50)]
         public string Password { get; set; }
-        public string Token { get; set; }
     }
 }
