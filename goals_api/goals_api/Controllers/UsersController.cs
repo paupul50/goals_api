@@ -42,6 +42,7 @@ namespace goals_api.Controllers
         [HttpPost("create")]
         public IActionResult CreateUser([FromBody]UserCreateDto userCreateDto)
         {
+            // TODO:: try catch, kas jeigu jau toks vartotojas yra handle
             var newUser = new User {
                 Username = userCreateDto.Username,
                 Password = BCrypt.Net.BCrypt.HashPassword(userCreateDto.Password),
@@ -54,12 +55,15 @@ namespace goals_api.Controllers
             return Ok(newUser);
         }
 
-        [HttpGet]
-        public IActionResult GetAll()
+        [HttpDelete("logout")]
+        public IActionResult LogoutUser()
         {
-            var users = _dataContext.Users.Take(10);
+            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            currentUser.Token = null;
+            _dataContext.Users.Update(currentUser);
+            _dataContext.SaveChanges();
 
-            return Ok(users);
+            return Ok();
         }
     }
 }
