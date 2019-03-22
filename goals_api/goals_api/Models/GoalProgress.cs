@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 
 namespace goals_api.Models
 {
-    public class Goal
+    public class GoalProgress
     {
         [Key]
         public int Id { get; set; }
-        [Required]
-        [StringLength(20)]
-        public string Name { get; set; }
+        public bool IsDone { get; set; }
         public DateTime CreatedAt { get; set; }
-        public User User { get; set; }
+        public Goal Goal { get; set; }
     }
 }
