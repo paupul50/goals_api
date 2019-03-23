@@ -30,40 +30,68 @@ namespace goals_api.Controllers
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromBody]UserLoginDto userParam)
         {
-            var user = _userService.Authenticate(userParam.Username, userParam.Password);
+            try
+            {
+                var user = _userService.Authenticate(userParam.Username, userParam.Password);
 
-            if (user == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
+                if (user == null)
+                    return StatusCode(400);
 
-            return Ok(user);
+                return Ok(user); // TODO:: return without pass und token
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
         }
 
         [AllowAnonymous]
         [HttpPost("create")]
         public IActionResult CreateUser([FromBody]UserCreateDto userCreateDto)
         {
-            // TODO:: try catch, kas jeigu jau toks vartotojas yra handle
-            var newUser = new User {
-                Username = userCreateDto.Username,
-                Password = BCrypt.Net.BCrypt.HashPassword(userCreateDto.Password),
-                FirstName = userCreateDto.FirstName,
-                LastName = userCreateDto.LastName
-            };
-            _dataContext.Users.Add(newUser);
-            _dataContext.SaveChanges();
+            try
+            {
+                var existingUser = _dataContext.Users.Find(userCreateDto.Username);
+                if (existingUser !=null)
+                {
+                    return StatusCode(409);
+                }
 
-            return Ok(newUser);
+                var newUser = new User
+                {
+                    Username = userCreateDto.Username,
+                    Password = BCrypt.Net.BCrypt.HashPassword(userCreateDto.Password),
+                    FirstName = userCreateDto.FirstName,
+                    LastName = userCreateDto.LastName
+                };
+                _dataContext.Users.Add(newUser);
+                _dataContext.SaveChanges();
+
+                return StatusCode(201);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
+            
         }
 
         [HttpDelete("logout")]
         public IActionResult LogoutUser()
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
-            currentUser.Token = null;
-            _dataContext.Users.Update(currentUser);
-            _dataContext.SaveChanges();
+            try
+            {
+                var currentUser = _dataContext.Users.Find(User.Identity.Name);
+                currentUser.Token = null; 
+                _dataContext.Users.Update(currentUser);
+                _dataContext.SaveChanges();
 
-            return Ok();
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ using goals_api.Models.DataContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace goals_api.Controllers
 {
@@ -23,15 +24,32 @@ namespace goals_api.Controllers
         }
 
         [HttpPatch]
-        public IActionResult SaveUserGoal([FromBody]GoalProgressPatchDto goalProgressPatchDto)
+        public IActionResult UpdateUserGoalProgress([FromBody]GoalProgressPatchDto goalProgressPatchDto)
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
-            var goalProgress = _dataContext.GoalProgresses.Find(goalProgressPatchDto.Id);
-            goalProgress.IsDone = goalProgressPatchDto.isDone;
-            _dataContext.GoalProgresses.Update(goalProgress);
-            _dataContext.SaveChanges();
+            try
+            {
+                var currentUser = _dataContext.Users.Find(User.Identity.Name);
+                var goalProgress = _dataContext.GoalProgresses.Include(gp => gp.Goal).SingleOrDefault(gp => gp.Id == goalProgressPatchDto.Id);
+                if (goalProgress == null)
+                {
+                    return StatusCode(204);
+                }
+                var goal = _dataContext.Goals.Find(goalProgress.Goal.Id);
+                if (goal.User !=currentUser)
+                {
+                    return StatusCode(401);
+                }
 
-            return Ok(goalProgress);
+                goalProgress.IsDone = goalProgressPatchDto.isDone;
+                _dataContext.GoalProgresses.Update(goalProgress);
+                _dataContext.SaveChanges();
+
+                return Ok(goalProgress);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500);
+            }
         }
     }
 }
