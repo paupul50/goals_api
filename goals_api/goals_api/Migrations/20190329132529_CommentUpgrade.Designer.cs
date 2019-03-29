@@ -9,8 +9,8 @@ using goals_api.Models.DataContext;
 namespace goals_api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20190321111545_GoalProgress")]
-    partial class GoalProgress
+    [Migration("20190329132529_CommentUpgrade")]
+    partial class CommentUpgrade
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -18,6 +18,29 @@ namespace goals_api.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("goals_api.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Body");
+
+                    b.Property<int>("CommentUserDescriptionId");
+
+                    b.Property<DateTime>("CreatedAt");
+
+                    b.Property<int?>("UserDescriptionId");
+
+                    b.Property<string>("Username")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserDescriptionId");
+
+                    b.ToTable("Comments");
+                });
 
             modelBuilder.Entity("goals_api.Models.Goal", b =>
                 {
@@ -79,6 +102,29 @@ namespace goals_api.Migrations
                     b.HasKey("Username");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("goals_api.Models.UserDescription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreateAt");
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("username");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserDescriptions");
+                });
+
+            modelBuilder.Entity("goals_api.Models.Comment", b =>
+                {
+                    b.HasOne("goals_api.Models.UserDescription")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserDescriptionId");
                 });
 
             modelBuilder.Entity("goals_api.Models.Goal", b =>

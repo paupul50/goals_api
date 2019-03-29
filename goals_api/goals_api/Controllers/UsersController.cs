@@ -65,6 +65,13 @@ namespace goals_api.Controllers
                     LastName = userCreateDto.LastName
                 };
                 _dataContext.Users.Add(newUser);
+
+                var userDescription = new UserDescription
+                {
+                    username = userCreateDto.Username,
+                    CreateAt = DateTime.Now
+                };
+                _dataContext.UserDescriptions.Add(userDescription);
                 _dataContext.SaveChanges();
 
                 return StatusCode(201);
