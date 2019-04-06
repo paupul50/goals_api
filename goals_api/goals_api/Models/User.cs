@@ -14,6 +14,7 @@ namespace goals_api.Models
         [Required]
         [StringLength(50)]
         public string LastName { get; set; }
+        // perdaryt i Key i int su Id, nes problemu sitas s kelia
         [EmailAddress]
         [Key]
         [StringLength(50)]

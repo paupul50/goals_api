@@ -37,7 +37,13 @@ namespace goals_api.Controllers
                 if (user == null)
                     return StatusCode(400);
 
-                return Ok(user); // TODO:: return without pass und token
+                var userResponseObject = new
+                {
+                    user.Token,
+                    user.Username
+                };
+
+                return Ok(userResponseObject);
             }
             catch (Exception)
             {

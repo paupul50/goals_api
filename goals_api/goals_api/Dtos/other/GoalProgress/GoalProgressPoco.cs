@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace goals_api.Dtos.Goals
+namespace goals_api.Dtos
 {
-    public class GoalWithProgressSegmentDto
+    public class GoalProgressPoco
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public bool IsDone { get; set; }
         public DateTime CreatedAt { get; set; }
-        public ICollection<GoalProgressDto> GoalProgressCollection { get; set; }
+        public bool IsDummy { get; set; }
     }
 }

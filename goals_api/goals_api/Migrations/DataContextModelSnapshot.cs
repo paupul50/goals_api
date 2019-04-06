@@ -78,6 +78,79 @@ namespace goals_api.Migrations
                     b.ToTable("GoalProgresses");
                 });
 
+            modelBuilder.Entity("goals_api.Models.Group", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreatedAt");
+
+                    b.Property<string>("GroupName");
+
+                    b.Property<string>("LeaderUsername");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("goals_api.Models.GroupGoal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreatedAt");
+
+                    b.Property<int?>("GroupId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupGoals");
+                });
+
+            modelBuilder.Entity("goals_api.Models.GroupGoalProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreatedAt");
+
+                    b.Property<int?>("GoalId");
+
+                    b.Property<bool>("IsDone");
+
+                    b.Property<string>("MemberUsername")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GoalId");
+
+                    b.ToTable("GroupGoalProgresses");
+                });
+
+            modelBuilder.Entity("goals_api.Models.GroupInvitation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreateAt");
+
+                    b.Property<string>("LeaderUsername");
+
+                    b.Property<string>("MemberUsername");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GroupInvitations");
+                });
+
             modelBuilder.Entity("goals_api.Models.User", b =>
                 {
                     b.Property<string>("Username")
@@ -87,6 +160,8 @@ namespace goals_api.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50);
+
+                    b.Property<int?>("GroupId");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -98,6 +173,8 @@ namespace goals_api.Migrations
                     b.Property<string>("Token");
 
                     b.HasKey("Username");
+
+                    b.HasIndex("GroupId");
 
                     b.ToTable("Users");
                 });
@@ -137,6 +214,27 @@ namespace goals_api.Migrations
                     b.HasOne("goals_api.Models.Goal", "Goal")
                         .WithMany()
                         .HasForeignKey("GoalId");
+                });
+
+            modelBuilder.Entity("goals_api.Models.GroupGoal", b =>
+                {
+                    b.HasOne("goals_api.Models.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId");
+                });
+
+            modelBuilder.Entity("goals_api.Models.GroupGoalProgress", b =>
+                {
+                    b.HasOne("goals_api.Models.GroupGoal", "Goal")
+                        .WithMany()
+                        .HasForeignKey("GoalId");
+                });
+
+            modelBuilder.Entity("goals_api.Models.User", b =>
+                {
+                    b.HasOne("goals_api.Models.Group")
+                        .WithMany("Members")
+                        .HasForeignKey("GroupId");
                 });
 #pragma warning restore 612, 618
         }

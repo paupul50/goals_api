@@ -102,7 +102,8 @@ namespace goals_api.Controllers
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
                 var userGoal = _dataContext.Goals.Find(id);
-                if (userGoal == null)
+
+                if (userGoal == null || userGoal.User != currentUser)
                 {
                     return StatusCode(204);
                 }
@@ -136,7 +137,7 @@ namespace goals_api.Controllers
                         Id = goal.Id,
                         Name = goal.Name,
                         CreatedAt = goal.CreatedAt,
-                        GoalProgressCollection = new List<GoalProgressDto>()
+                        GoalProgressCollection = new List<GoalProgressPoco>()
                     }).ToList();
 
                 var dateToUseForFiletring = DateTime.Now.Date;
@@ -148,7 +149,7 @@ namespace goals_api.Controllers
                         goalProgres.CreatedAt.Month == dateToUseForFiletring.Month &&
                         goalProgres.CreatedAt.Year == dateToUseForFiletring.Year &&
                         goalProgres.Goal.Id == goal.Id)
-                        .Select(goalProgress => new GoalProgressDto
+                        .Select(goalProgress => new GoalProgressPoco
                         {
                             Id = goalProgress.Id,
                             IsDone = goalProgress.IsDone,
@@ -170,7 +171,7 @@ namespace goals_api.Controllers
                         };
                         _dataContext.GoalProgresses.Add(goalProgressToday);
 
-                        goal.GoalProgressCollection.Add(new GoalProgressDto
+                        goal.GoalProgressCollection.Add(new GoalProgressPoco
                         {
                             Id = goalProgressToday.Goal.Id,
                             CreatedAt = goalProgressToday.CreatedAt,
@@ -205,7 +206,7 @@ namespace goals_api.Controllers
                         Id = goal.Id,
                         Name = goal.Name,
                         CreatedAt = goal.CreatedAt,
-                        GoalProgressCollection = new List<GoalProgressDto>()
+                        GoalProgressCollection = new List<GoalProgressPoco>()
                     }).ToList();
 
                 var dateToUseForFiletring = goalWithProgressDto.DateTimeOffset.AddDays(-goalWithProgressDto.DayLimit / 2);
@@ -215,7 +216,7 @@ namespace goals_api.Controllers
                     goal.GoalProgressCollection = _dataContext.GoalProgresses
                         .Where(goalProgres => goalProgres.CreatedAt > dateToUseForFiletring && goalProgres.Goal.Id == goal.Id)
                         .Take(goalWithProgressDto.DayLimit)
-                        .Select(goalProgress => new GoalProgressDto
+                        .Select(goalProgress => new GoalProgressPoco
                         {
                             Id = goalProgress.Id,
                             IsDone = goalProgress.IsDone,
@@ -228,7 +229,7 @@ namespace goals_api.Controllers
                 foreach (var goal in goals)
                 {
                     int counter = 0;
-                    var goalWithDummyProgress = new List<GoalProgressDto>();
+                    var goalWithDummyProgress = new List<GoalProgressPoco>();
                     var startDate = goalWithProgressDto.DateTimeOffset.AddDays(-goalWithProgressDto.DayLimit / 2);
                     var endDate = goalWithProgressDto.DateTimeOffset.AddDays(goalWithProgressDto.DayLimit / 2);
                     var todayDate = DateTime.Now;
@@ -253,7 +254,7 @@ namespace goals_api.Controllers
                             };
                             _dataContext.GoalProgresses.Add(goalProgressToday);
 
-                            goalWithDummyProgress.Add(new GoalProgressDto
+                            goalWithDummyProgress.Add(new GoalProgressPoco
                             {
                                 Id = goalProgressToday.Goal.Id,
                                 CreatedAt = goalProgressToday.CreatedAt,
@@ -265,7 +266,7 @@ namespace goals_api.Controllers
                         }
                         else
                         {
-                            goalWithDummyProgress.Add(new GoalProgressDto
+                            goalWithDummyProgress.Add(new GoalProgressPoco
                             {
                                 CreatedAt = date,
                                 IsDummy = true
