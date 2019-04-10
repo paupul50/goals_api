@@ -51,7 +51,7 @@ namespace goals_api.Controllers
 
                 return Ok();
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 return StatusCode(500);
             }

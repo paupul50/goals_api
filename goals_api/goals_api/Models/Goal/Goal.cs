@@ -15,5 +15,7 @@ namespace goals_api.Models
         public string Name { get; set; }
         public DateTime CreatedAt { get; set; }
         public User User { get; set; }
+        public int GoalType { get; set; }
+        public int WorkoutId { get; set; }
     }
 }

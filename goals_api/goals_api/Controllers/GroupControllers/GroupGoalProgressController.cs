@@ -82,9 +82,10 @@ namespace goals_api.Controllers
                         goal.Id,
                         goal.Name,
                         goal.CreatedAt,
+                        goal.GoalType,
+                        goal.WorkoutId
                     },
-                    // TODO: pervadint sita durna pavadinima
-                    goalProgressCollection = new
+                    goalProgress = new
                     {
                         username = goalProgress.MemberUsername,
                         goalProgress.Id,
@@ -114,9 +115,11 @@ namespace goals_api.Controllers
                         goal.Id,
                         goal.Name,
                         goal.CreatedAt,
+                        goal.GoalType,
+                        goal.WorkoutId
                     },
                     // TODO: pervadint sita durna pavadinima
-                    goalProgressCollection = new
+                    goalProgress = new
                     {
                         username = currentUser.Username,
                         Id = newGoalProgress.Id,

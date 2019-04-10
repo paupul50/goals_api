@@ -37,12 +37,32 @@ namespace goals_api.Controllers
                     return StatusCode(400);
                 }
 
-                var userGoal = new Goal
+                Goal userGoal;
+
+                switch (goalDto.GoalType)
                 {
-                    Name = goalDto.Goalname,
-                    User = currentUser,
-                    CreatedAt = DateTime.Now
-                };
+                    case 1:
+                        userGoal = new Goal
+                        {
+                            Name = goalDto.Goalname,
+                            User = currentUser,
+                            CreatedAt = DateTime.Now,
+                            GoalType = 1
+                        };
+                        break;
+                    case 2:
+                        userGoal = new Goal
+                        {
+                            Name = goalDto.Goalname,
+                            User = currentUser,
+                            CreatedAt = DateTime.Now,
+                            GoalType = 2,
+                            WorkoutId = goalDto.WorkoutId
+                        };
+                        break;
+                    default:
+                        return StatusCode(400);
+                }
 
                 _dataContext.Goals.Add(userGoal);
                 // progress adda
@@ -128,68 +148,91 @@ namespace goals_api.Controllers
         [HttpGet("todayProgress")]
         public IActionResult GetUserGoalWithProgress()
         {
+            var currentUser = _dataContext.Users.Find(User.Identity.Name);
             try
             {
-                var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                var goals = _dataContext.Goals.Where(goal => goal.User == currentUser)
-                    .Select(goal => new GoalWithProgressSegmentDto
-                    {
-                        Id = goal.Id,
-                        Name = goal.Name,
-                        CreatedAt = goal.CreatedAt,
-                        GoalProgressCollection = new List<GoalProgressPoco>()
-                    }).ToList();
-
                 var dateToUseForFiletring = DateTime.Now.Date;
+
+                var goals = _dataContext.Goals.Where(g => g.User == currentUser);
+
+                var goalsRetunCollection = new List<object>();
 
                 foreach (var goal in goals)
                 {
-                    var goalProgressCollection = _dataContext.GoalProgresses
-                        .Where(goalProgres => goalProgres.CreatedAt.Day == dateToUseForFiletring.Day &&
-                        goalProgres.CreatedAt.Month == dateToUseForFiletring.Month &&
-                        goalProgres.CreatedAt.Year == dateToUseForFiletring.Year &&
-                        goalProgres.Goal.Id == goal.Id)
-                        .Select(goalProgress => new GoalProgressPoco
-                        {
-                            Id = goalProgress.Id,
-                            IsDone = goalProgress.IsDone,
-                            CreatedAt = goalProgress.CreatedAt,
-                            IsDummy = false
-                        }
-                        ).OrderBy(progress => progress.CreatedAt).ToList();
-                    if (goalProgressCollection.Count > 0)
-                    {
-                        goal.GoalProgressCollection = goalProgressCollection;
-                    } else
-                    {
-                        // today goal progress creation
-                        var goalProgressToday = new GoalProgress
-                        {
-                            Goal = _dataContext.Goals.Find(goal.Id),
-                            IsDone = false,
-                            CreatedAt = DateTime.Now
-                        };
-                        _dataContext.GoalProgresses.Add(goalProgressToday);
-
-                        goal.GoalProgressCollection.Add(new GoalProgressPoco
-                        {
-                            Id = goalProgressToday.Goal.Id,
-                            CreatedAt = goalProgressToday.CreatedAt,
-                            IsDone = goalProgressToday.IsDone,
-                            IsDummy = false
-
-                        });
-                        _dataContext.SaveChanges();
-                    }
-                    
+                    goalsRetunCollection.Add(GetGoalObject(goal, dateToUseForFiletring, currentUser));
                 }
 
-                return Ok(goals);
+                return Ok(goalsRetunCollection);
             }
             catch (Exception)
             {
 
                 return StatusCode(500);
+            }
+        }
+
+        private object GetGoalObject(Goal goal, DateTime dateToUseForFiletring, User currentUser)
+        {
+            GoalProgress goalProgress = _dataContext.GoalProgresses
+            .SingleOrDefault(goalProgres => goalProgres.CreatedAt.Day == dateToUseForFiletring.Day &&
+            goalProgres.CreatedAt.Month == dateToUseForFiletring.Month &&
+            goalProgres.CreatedAt.Year == dateToUseForFiletring.Year &&
+            goalProgres.Goal.Id == goal.Id);
+            if (goalProgress != null)
+            {
+                return new
+                {
+                    goal = new
+                    {
+                        goal.Id,
+                        goal.Name,
+                        goal.CreatedAt,
+                        goal.GoalType,
+                        goal.WorkoutId
+                    },
+                    goalProgress = new
+                    {
+                        goalProgress.Id,
+                        goalProgress.CreatedAt,
+                        goalProgress.IsDone,
+                        IsDummy = false
+
+                    }
+                };
+            }
+            else
+            {
+                var newGoalProgress = new GoalProgress
+                {
+                    Goal = _dataContext.Goals.Find(goal.Id),
+                    IsDone = false,
+                    CreatedAt = DateTime.Now
+                };
+                // today goal progress creation
+                _dataContext.GoalProgresses.Add(newGoalProgress);
+                _dataContext.SaveChanges();
+                return new
+                {
+                    goal = new
+                    {
+                        goal.Id,
+                        goal.Name,
+                        goal.CreatedAt,
+                        goal.GoalType,
+                        goal.WorkoutId
+                    },
+                    // TODO: pervadint sita durna pavadinima
+                    goalProgressCollection = new
+                    {
+                        username = currentUser.Username,
+                        Id = newGoalProgress.Id,
+                        CreatedAt = DateTime.Now,
+                        IsDone = false,
+                        IsDummy = false
+
+                    }
+                };
+
             }
         }
 

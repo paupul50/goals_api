@@ -17,6 +17,8 @@ namespace goals_api.Models.DataContext
         public DbSet<GroupGoal> GroupGoals { get; set; }
         public DbSet<GroupGoalProgress> GroupGoalProgresses { get; set; }
         public DbSet<GroupInvitation> GroupInvitations { get; set; }
+        public DbSet<Workout> Workouts { get; set; }
+        public DbSet<RoutePoint> RoutePoints { get; set; }
 
         // goal day progress
         // goal day progress comments
@@ -43,6 +45,12 @@ namespace goals_api.Models.DataContext
                 .WithMany();
             modelBuilder.Entity<GroupGoalProgress>()
                 .HasOne(gp => gp.Goal)
+                .WithMany();
+            modelBuilder.Entity<Workout>()
+                .HasOne(w => w.Creator)
+                .WithMany();
+            modelBuilder.Entity<RoutePoint>()
+                .HasOne(rp => rp.Workout)
                 .WithMany();
         }
     }

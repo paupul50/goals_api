@@ -45,12 +45,33 @@ namespace goals_api.Controllers
                     return StatusCode(400);
                 }
 
-                var groupGoal = new GroupGoal
+
+                GroupGoal groupGoal;
+
+                switch (groupGoalDto.GoalType)
                 {
-                    Name = groupGoalDto.Name,
-                    Group = currentGroup,
-                    CreatedAt = DateTime.Now
-                };
+                    case 1:
+                        groupGoal = new GroupGoal
+                        {
+                            Name = groupGoalDto.Name,
+                            CreatedAt = DateTime.Now,
+                            GoalType = 1,
+                            Group = currentGroup
+                        };
+                        break;
+                    case 2:
+                        groupGoal = new GroupGoal
+                        {
+                            Name = groupGoalDto.Name,
+                            CreatedAt = DateTime.Now,
+                            GoalType = 2,
+                            WorkoutId = groupGoalDto.WorkoutId,
+                            Group = currentGroup
+                        };
+                        break;
+                    default:
+                        return StatusCode(400);
+                }
 
                 _dataContext.GroupGoals.Add(groupGoal);
                 //// progress adda

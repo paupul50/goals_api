@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using goals_api.Models.DataContext;
 
 namespace goals_api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20190408114233_Workout2")]
+    partial class Workout2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,15 +49,11 @@ namespace goals_api.Migrations
 
                     b.Property<DateTime>("CreatedAt");
 
-                    b.Property<int>("GoalType");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20);
 
                     b.Property<string>("Username");
-
-                    b.Property<int>("WorkoutId");
 
                     b.HasKey("Id");
 
@@ -105,15 +103,11 @@ namespace goals_api.Migrations
 
                     b.Property<DateTime>("CreatedAt");
 
-                    b.Property<int>("GoalType");
-
                     b.Property<int?>("GroupId");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20);
-
-                    b.Property<int>("WorkoutId");
 
                     b.HasKey("Id");
 

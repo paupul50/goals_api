@@ -11,5 +11,7 @@ namespace goals_api.Dtos
         [Required]
         [StringLength(20)]
         public string Goalname { get; set; }
+        public int GoalType { get; set; }
+        public int WorkoutId { get; set; }
     }
 }
