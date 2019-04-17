@@ -45,9 +45,9 @@ namespace goals_api.Controllers
 
                 return Ok(userResponseObject);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500);
+                return Ok(ex);
             }
         }
 
@@ -82,9 +82,9 @@ namespace goals_api.Controllers
 
                 return StatusCode(201);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500);
+                return Ok(ex);
             }
             
         }

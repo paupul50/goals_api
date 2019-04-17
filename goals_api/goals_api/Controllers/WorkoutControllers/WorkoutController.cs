@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using goals_api.Dtos.RequestDto.Workout;
-using goals_api.Models;
+using goals_api.Dtos.RequestDto;
+using goals_api.Models.Workouts;
 using goals_api.Models.DataContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -81,7 +81,9 @@ namespace goals_api.Controllers.WorkoutControllers
             try
             {
                 var workoutToDelete = _dataContext.Workouts.Find(id);
-                if(workoutToDelete.Creator != currentUser)
+                var workoutGoal = _dataContext.Goals.Where(g => g.WorkoutId == id).ToList();
+                var workoutGoal2 = _dataContext.GroupGoals.Where(g => g.WorkoutId == id).ToList();
+                if (workoutToDelete.Creator != currentUser || workoutGoal.Count>1 || workoutGoal2.Count > 1)
                 {
                     return StatusCode(401);
                 }

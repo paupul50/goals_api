@@ -30,7 +30,7 @@ namespace goals_api.Controllers
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
                 var goalProgress = _dataContext.GoalProgresses.Include(gp => gp.Goal).SingleOrDefault(gp => gp.Id == goalProgressPatchDto.Id);
-                if (goalProgress == null)
+                if (goalProgress == null || goalProgress.Goal.GoalType != 1)
                 {
                     return StatusCode(204);
                 }

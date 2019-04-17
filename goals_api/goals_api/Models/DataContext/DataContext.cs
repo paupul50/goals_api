@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using goals_api.Models.Workouts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace goals_api.Models.DataContext
         public DbSet<GroupInvitation> GroupInvitations { get; set; }
         public DbSet<Workout> Workouts { get; set; }
         public DbSet<RoutePoint> RoutePoints { get; set; }
+        public DbSet<WorkoutProgress> WorkoutProgresses { get; set; }
+        public DbSet<WorkoutPointProgress> WorkoutPointProgresses { get; set; }
 
         // goal day progress
         // goal day progress comments
@@ -51,6 +54,12 @@ namespace goals_api.Models.DataContext
                 .WithMany();
             modelBuilder.Entity<RoutePoint>()
                 .HasOne(rp => rp.Workout)
+                .WithMany();
+            modelBuilder.Entity<WorkoutProgress>()
+                .HasOne(wp => wp.Workout)
+                .WithMany();
+            modelBuilder.Entity<WorkoutPointProgress>()
+                .HasOne(wpp => wpp.RoutePoint)
                 .WithMany();
         }
     }

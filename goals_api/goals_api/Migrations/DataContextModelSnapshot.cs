@@ -159,34 +159,6 @@ namespace goals_api.Migrations
                     b.ToTable("GroupInvitations");
                 });
 
-            modelBuilder.Entity("goals_api.Models.RoutePoint", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("CircleDraggable");
-
-                    b.Property<bool>("Editable");
-
-                    b.Property<string>("FillColour");
-
-                    b.Property<int>("Index");
-
-                    b.Property<double>("Lat");
-
-                    b.Property<double>("Lng");
-
-                    b.Property<double>("Radius");
-
-                    b.Property<int?>("WorkoutId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WorkoutId");
-
-                    b.ToTable("RoutePoints");
-                });
-
             modelBuilder.Entity("goals_api.Models.User", b =>
                 {
                     b.Property<string>("Username")
@@ -231,7 +203,35 @@ namespace goals_api.Migrations
                     b.ToTable("UserDescriptions");
                 });
 
-            modelBuilder.Entity("goals_api.Models.Workout", b =>
+            modelBuilder.Entity("goals_api.Models.Workouts.RoutePoint", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("CircleDraggable");
+
+                    b.Property<bool>("Editable");
+
+                    b.Property<string>("FillColour");
+
+                    b.Property<int>("Index");
+
+                    b.Property<double>("Lat");
+
+                    b.Property<double>("Lng");
+
+                    b.Property<double>("Radius");
+
+                    b.Property<int?>("WorkoutId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkoutId");
+
+                    b.ToTable("RoutePoints");
+                });
+
+            modelBuilder.Entity("goals_api.Models.Workouts.Workout", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -247,6 +247,48 @@ namespace goals_api.Migrations
                     b.HasIndex("CreatorUsername");
 
                     b.ToTable("Workouts");
+                });
+
+            modelBuilder.Entity("goals_api.Models.Workouts.WorkoutPointProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("IsDone");
+
+                    b.Property<int?>("RoutePointId");
+
+                    b.Property<int>("WorkoutPointId");
+
+                    b.Property<int>("WorkoutProgress");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoutePointId");
+
+                    b.ToTable("WorkoutPointProgresses");
+                });
+
+            modelBuilder.Entity("goals_api.Models.Workouts.WorkoutProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("IsDone");
+
+                    b.Property<int>("ProgressIndex");
+
+                    b.Property<string>("Username");
+
+                    b.Property<int?>("WorkoutId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Username");
+
+                    b.HasIndex("WorkoutId");
+
+                    b.ToTable("WorkoutProgresses");
                 });
 
             modelBuilder.Entity("goals_api.Models.Comment", b =>
@@ -284,13 +326,6 @@ namespace goals_api.Migrations
                         .HasForeignKey("GoalId");
                 });
 
-            modelBuilder.Entity("goals_api.Models.RoutePoint", b =>
-                {
-                    b.HasOne("goals_api.Models.Workout", "Workout")
-                        .WithMany()
-                        .HasForeignKey("WorkoutId");
-                });
-
             modelBuilder.Entity("goals_api.Models.User", b =>
                 {
                     b.HasOne("goals_api.Models.Group")
@@ -298,11 +333,36 @@ namespace goals_api.Migrations
                         .HasForeignKey("GroupId");
                 });
 
-            modelBuilder.Entity("goals_api.Models.Workout", b =>
+            modelBuilder.Entity("goals_api.Models.Workouts.RoutePoint", b =>
+                {
+                    b.HasOne("goals_api.Models.Workouts.Workout", "Workout")
+                        .WithMany()
+                        .HasForeignKey("WorkoutId");
+                });
+
+            modelBuilder.Entity("goals_api.Models.Workouts.Workout", b =>
                 {
                     b.HasOne("goals_api.Models.User", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorUsername");
+                });
+
+            modelBuilder.Entity("goals_api.Models.Workouts.WorkoutPointProgress", b =>
+                {
+                    b.HasOne("goals_api.Models.Workouts.RoutePoint", "RoutePoint")
+                        .WithMany()
+                        .HasForeignKey("RoutePointId");
+                });
+
+            modelBuilder.Entity("goals_api.Models.Workouts.WorkoutProgress", b =>
+                {
+                    b.HasOne("goals_api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Username");
+
+                    b.HasOne("goals_api.Models.Workouts.Workout", "Workout")
+                        .WithMany()
+                        .HasForeignKey("WorkoutId");
                 });
 #pragma warning restore 612, 618
         }

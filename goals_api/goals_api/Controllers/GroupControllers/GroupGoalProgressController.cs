@@ -165,6 +165,7 @@ namespace goals_api.Controllers
                     var userGoalProgresses = new List<object>();
                     foreach (var user in currentGroup.Members)
                     {
+                        var userDescription = _dataContext.UserDescriptions.SingleOrDefault(ud => ud.username == user.Username);
                         var userProgress = _dataContext.GroupGoalProgresses.SingleOrDefault(
                             ggp => 
                             ggp.Goal == goal &&
@@ -196,6 +197,7 @@ namespace goals_api.Controllers
                                         newGroupGoalProgress.IsDone,
                                         newGroupGoalProgress.Id,
                                         user,
+                                        userDescription,
                                         isDummy = false
                                     });
 
@@ -208,6 +210,7 @@ namespace goals_api.Controllers
                                     CreatedAt = today,
                                     IsDone = false,
                                     user,
+                                    userDescription,
                                     isDummy = true
                                 });
                             }
@@ -220,6 +223,7 @@ namespace goals_api.Controllers
                                 userProgress.IsDone,
                                 userProgress.Id,
                                 user,
+                                userDescription,
                                 isDummy = false
                             });
                         }
@@ -254,7 +258,7 @@ namespace goals_api.Controllers
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
                 var goalProgress = _dataContext.GroupGoalProgresses.Include(gp => gp.Goal).SingleOrDefault(gp => gp.Id == goalProgressPatchDto.Id);
-                if (goalProgress == null)
+                if (goalProgress == null || goalProgress.Goal.GoalType != 1)
                 {
                     return StatusCode(204);
                 }

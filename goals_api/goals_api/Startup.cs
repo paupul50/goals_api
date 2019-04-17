@@ -75,6 +75,7 @@ namespace goals_api
             app.UseAuthentication();
 
             app.UseMvc();
+            app.UseFileServer();
         }
     }
 }

@@ -164,7 +164,7 @@ namespace goals_api.Controllers
 
                 return Ok(goalsRetunCollection);
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
                 return StatusCode(500);
