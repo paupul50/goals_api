@@ -36,12 +36,23 @@ namespace goals_api.Controllers
 
                 if (user == null)
                     return StatusCode(400);
-
-                var userResponseObject = new
+                object userResponseObject;
+                if (user.GoogleToken !=null)
                 {
-                    user.Token,
-                    user.Username
-                };
+                    userResponseObject = new
+                    {
+                        isGoogleLogged = true,
+                        user.Token,
+                        user.Username
+                    };
+                } else
+                {
+                    userResponseObject = new
+                    {
+                        user.Token,
+                        user.Username
+                    };
+                }
 
                 return Ok(userResponseObject);
             }

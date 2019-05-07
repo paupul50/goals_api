@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace goals_api.Models.Workouts
 {
+    // routePointProgress
     public class WorkoutPointProgress
     {
         public int Id { get; set; }

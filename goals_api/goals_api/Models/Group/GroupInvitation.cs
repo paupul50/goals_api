@@ -11,6 +11,7 @@ namespace goals_api.Models
         [Key]
         public int Id { get; set; }
         public DateTime CreateAt { get; set; }
+        // cia grupe turetu but
         public string LeaderUsername { get; set; }
         public string MemberUsername { get; set; }
     }

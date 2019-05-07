@@ -23,5 +23,7 @@ namespace goals_api.Models
         public string Password { get; set; }
 
         public string Token { get; set; }
+        public string GoogleToken { get; set; }
+        public string GoogleStatus { get; set; }
     }
 }

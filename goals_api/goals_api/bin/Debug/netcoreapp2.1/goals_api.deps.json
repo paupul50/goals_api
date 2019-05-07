@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.1",
-    "signature": "0e315c4c360be6a706a0b394e3cfc40428dffdd9"
+    "signature": "2668f736a5171fa7f725d65378b531b5d2d47b1b"
   },
   "compilationOptions": {
     "defines": [
@@ -25,6 +25,7 @@
       "goals_api/1.0.0": {
         "dependencies": {
           "BCrypt.Net-Next": "3.1.3",
+          "Google.Apis": "1.39.0",
           "Microsoft.AspNetCore.App": "2.1.1",
           "Microsoft.AspNetCore.Razor.Design": "2.1.2",
           "Microsoft.EntityFrameworkCore.Tools": "2.1.4",
@@ -57,6 +58,35 @@
         },
         "compile": {
           "lib/netstandard2.0/BCrypt.Net-Next.dll": {}
+        }
+      },
+      "Google.Apis/1.39.0": {
+        "dependencies": {
+          "Google.Apis.Core": "1.39.0",
+          "Newtonsoft.Json": "11.0.2"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Google.Apis.dll": {
+            "assemblyVersion": "1.39.0.0",
+            "fileVersion": "1.39.0.0"
+          }
+        },
+        "compile": {
+          "lib/netstandard2.0/Google.Apis.dll": {}
+        }
+      },
+      "Google.Apis.Core/1.39.0": {
+        "dependencies": {
+          "Newtonsoft.Json": "11.0.2"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Google.Apis.Core.dll": {
+            "assemblyVersion": "1.39.0.0",
+            "fileVersion": "1.39.0.0"
+          }
+        },
+        "compile": {
+          "lib/netstandard2.0/Google.Apis.Core.dll": {}
         }
       },
       "Google.Protobuf/3.5.1": {
@@ -3694,6 +3724,20 @@
       "sha512": "sha512-WUqYXSyGjjtlJGe9IaKP74Bh4yP3oGQJ51ZXDkuRYHECldl69+k49/ZX6jkubwhpZ2NCVXycOw1abXtDh4IpQw==",
       "path": "bcrypt.net-next/3.1.3",
       "hashPath": "bcrypt.net-next.3.1.3.nupkg.sha512"
+    },
+    "Google.Apis/1.39.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6YasevwtfDNr2kuyN7ZqMKWVKHWEg6qCfNMc5gGsHm320edk02r/P5JU3N58vYk2bpHN6Nw8NlgF/ljZJyPImg==",
+      "path": "google.apis/1.39.0",
+      "hashPath": "google.apis.1.39.0.nupkg.sha512"
+    },
+    "Google.Apis.Core/1.39.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-4Ey0CeUU+M/JQJZEfuoPw6K8IkYscL6CvsawvROUUowdMxp1OfCNzIC40Y00aXhkE1CAfhF2awgUrrkb9XzxMg==",
+      "path": "google.apis.core/1.39.0",
+      "hashPath": "google.apis.core.1.39.0.nupkg.sha512"
     },
     "Google.Protobuf/3.5.1": {
       "type": "package",
