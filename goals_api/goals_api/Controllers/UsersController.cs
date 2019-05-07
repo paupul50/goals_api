@@ -19,16 +19,18 @@ namespace goals_api.Controllers
     {
         private IUserService _userService;
         private DataContext _dataContext;
+        private IGoogleApiService _googleApiService;
 
-        public UsersController(IUserService userService, DataContext dataContext)
+        public UsersController(IUserService userService, DataContext dataContext, IGoogleApiService googleApiService)
         {
             _userService = userService;
             _dataContext = dataContext;
+            _googleApiService = googleApiService;
         }
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]UserLoginDto userParam)
+        public async Task<IActionResult> Authenticate([FromBody]UserLoginDto userParam)
         {
             try
             {
@@ -37,15 +39,29 @@ namespace goals_api.Controllers
                 if (user == null)
                     return StatusCode(400);
                 object userResponseObject;
-                if (user.GoogleToken !=null)
+                if (user.GoogleToken != null)
                 {
-                    userResponseObject = new
+                    var result = await _googleApiService.GetUserData(user);
+                    if (result == "error")
                     {
-                        isGoogleLogged = true,
-                        user.Token,
-                        user.Username
-                    };
-                } else
+                        userResponseObject = new
+                        {
+                            user.Token,
+                            user.Username
+                        };
+                    }
+                    else
+                    {
+                        userResponseObject = new
+                        {
+                            isGoogleLogged = true,
+                            user.Token,
+                            user.Username
+                        };
+                    }
+
+                }
+                else
                 {
                     userResponseObject = new
                     {
@@ -69,7 +85,7 @@ namespace goals_api.Controllers
             try
             {
                 var existingUser = _dataContext.Users.Find(userCreateDto.Username);
-                if (existingUser !=null)
+                if (existingUser != null)
                 {
                     return StatusCode(409);
                 }
@@ -97,7 +113,7 @@ namespace goals_api.Controllers
             {
                 return Ok(ex);
             }
-            
+
         }
 
         [HttpDelete("logout")]
@@ -106,7 +122,7 @@ namespace goals_api.Controllers
             try
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                currentUser.Token = null; 
+                currentUser.Token = null;
                 _dataContext.Users.Update(currentUser);
                 _dataContext.SaveChanges();
 

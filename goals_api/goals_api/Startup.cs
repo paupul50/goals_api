@@ -61,6 +61,8 @@ namespace goals_api
             services.AddScoped<IUserService, UserService>();
             services.AddEntityFrameworkSqlServer().AddDbContext<DataContext>(options
                 => options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddTransient<IGoogleApiService, GoogleApiService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

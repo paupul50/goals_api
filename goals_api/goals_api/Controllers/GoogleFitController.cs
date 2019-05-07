@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using goals_api.Dtos.RequestDto;
 using goals_api.Dtos.RequestDto.User;
 using goals_api.Models.DataContext;
+using goals_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace goals_api.Controllers
 {
@@ -20,10 +24,12 @@ namespace goals_api.Controllers
     public class GoogleFitController : ControllerBase
     {
         private readonly DataContext _dataContext;
+        private readonly IGoogleApiService _googleApiService;
 
-        public GoogleFitController(DataContext dataContext)
+        public GoogleFitController(DataContext dataContext, IGoogleApiService googleApiService)
         {
             this._dataContext = dataContext;
+            this._googleApiService = googleApiService;
         }
 
         [HttpPost]
@@ -42,6 +48,31 @@ namespace goals_api.Controllers
             {
                 return StatusCode(500);
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+
+            try
+            {
+                var currentUser = _dataContext.Users.Find(User.Identity.Name);
+
+                var result = await _googleApiService.GetUserData(currentUser);
+
+                if (result == "session_end")
+                {
+                    return Ok(new { error = "Baigėsi sesija." });
+                }
+                return Ok(result);
+            }
+            catch (Exception exeption)
+            {
+                return StatusCode(400);
+            }
+
+
+
         }
 
         //private string decodeUserId(string state)
