@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using goals_api.Dtos.RequestDto.User;
 using goals_api.Models.DataContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -27,10 +28,13 @@ namespace goals_api.Controllers
         {
             try
             {
-                var currentUser = _dataContext.Users.Find(User.Identity.Name);
+                var user = _dataContext.Users.Find(User.Identity.Name);
                 // currentUser.UserDescription = _dataContext.UserDescriptions.Include(ud => ud.Comments).Single(ud => ud.Id == currentUser.DescriptionId);
-                var userDescription = _dataContext.UserDescriptions.Include(ud => ud.Comments).Single(ud => ud.username == User.Identity.Name);
-                return Ok(userDescription);
+                var userComments = _dataContext.Comments.Where(c => c.CommentedUser == user);
+                return Ok(new {
+                    user,
+                    userComments
+                });
             }
             catch (Exception)
             {
@@ -39,13 +43,23 @@ namespace goals_api.Controllers
             }
         }
 
-        [HttpGet("{id:int}")]
-        public IActionResult GetUserDescription(int id)
+        [HttpPost]
+        public IActionResult GetUserDescription(UserDescriptionDto userDescriptionDto)
         {
             try
             {
-                var userDescription = _dataContext.UserDescriptions.Include(ud => ud.Comments).Single(ud => ud.Id == id);
-                return Ok(userDescription);
+                var user = _dataContext.Users.Find(userDescriptionDto.Username);
+                if(user == null)
+                {
+                    return StatusCode(404);
+                }
+                // currentUser.UserDescription = _dataContext.UserDescriptions.Include(ud => ud.Comments).Single(ud => ud.Id == currentUser.DescriptionId);
+                var userComments = _dataContext.Comments.Where(c => c.CommentedUser == user);
+                return Ok(new
+                {
+                    user,
+                    userComments
+                });
             }
             catch (Exception)
             {

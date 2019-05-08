@@ -38,7 +38,6 @@ namespace goals_api.Controllers
             try
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                currentUser.GoogleStatus = googleAccessDto.State;
                 currentUser.GoogleToken = googleAccessDto.Token;
                 _dataContext.Users.Update(currentUser);
                 _dataContext.SaveChanges();

@@ -40,14 +40,14 @@ namespace goals_api.Controllers
                 //{
                 var currentUserGroup = _dataContext.Groups.SingleOrDefault(group => group.Members.Contains(currentUser));
                 if (currentUserGroup == null)
-                 {
-                      return Ok();
-                 }
-                    //currentUserGroup = userGroup;
+                {
+                    return Ok();
+                }
+                //currentUserGroup = userGroup;
                 //}
                 var dateToUseForFiletring = DateTime.Now.Date;
 
-                var groupGoals = _dataContext.GroupGoals.Where(goal => goal.Group == currentUserGroup).ToList();
+                var groupGoals = _dataContext.Goals.Where(goal => goal.GoalMedium.Group == currentUserGroup).ToList();
 
                 var groupGoalsRetunCollection = new List<object>();
 
@@ -65,14 +65,14 @@ namespace goals_api.Controllers
             }
         }
 
-        private object GetGoalObject(GroupGoal goal, DateTime dateToUseForFiletring, User currentUser)
+        private object GetGoalObject(Goal goal, DateTime dateToUseForFiletring, User currentUser)
         {
-            GroupGoalProgress goalProgress = _dataContext.GroupGoalProgresses
+            GoalProgress goalProgress = _dataContext.GoalProgresses
             .SingleOrDefault(goalProgres => goalProgres.CreatedAt.Day == dateToUseForFiletring.Day &&
             goalProgres.CreatedAt.Month == dateToUseForFiletring.Month &&
             goalProgres.CreatedAt.Year == dateToUseForFiletring.Year &&
             goalProgres.Goal.Id == goal.Id
-            && goalProgres.MemberUsername == currentUser.Username);
+            && goalProgres.User == currentUser);
             if (goalProgress != null)
             {
                 return new
@@ -83,11 +83,11 @@ namespace goals_api.Controllers
                         goal.Name,
                         goal.CreatedAt,
                         goal.GoalType,
-                        goal.WorkoutId
+                        goal.Workout
                     },
                     goalProgress = new
                     {
-                        username = goalProgress.MemberUsername,
+                        username = goalProgress.User,
                         goalProgress.Id,
                         goalProgress.CreatedAt,
                         goalProgress.IsDone,
@@ -98,15 +98,15 @@ namespace goals_api.Controllers
             }
             else
             {
-                var newGoalProgress = new GroupGoalProgress
+                var newGoalProgress = new GoalProgress
                 {
-                    Goal = _dataContext.GroupGoals.Find(goal.Id),
-                    MemberUsername = currentUser.Username,
+                    Goal = _dataContext.Goals.Find(goal.Id),
+                    User = currentUser,
                     IsDone = false,
                     CreatedAt = DateTime.Now
                 };
                 // today goal progress creation
-                _dataContext.GroupGoalProgresses.Add(newGoalProgress);
+                _dataContext.GoalProgresses.Add(newGoalProgress);
                 _dataContext.SaveChanges();
                 return new
                 {
@@ -116,7 +116,7 @@ namespace goals_api.Controllers
                         goal.Name,
                         goal.CreatedAt,
                         goal.GoalType,
-                        goal.WorkoutId
+                        goal.Workout
                     },
                     // TODO: pervadint sita durna pavadinima
                     goalProgress = new
@@ -140,21 +140,22 @@ namespace goals_api.Controllers
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
             try
             {
-                var currentGroup = _dataContext.Groups.Include(g=>g.Members)
+                var currentGroup = _dataContext.Groups.Include(g => g.Members)
                     .SingleOrDefault(g => g.Members.Contains(currentUser)); //Include(group=>group.Members).
 
                 if (currentGroup == null)
                 {
                     var leaderGroup = _dataContext.Groups.Include(g => g.Members)
-                    .SingleOrDefault(g => g.LeaderUsername==currentUser.Username);
-                    if (leaderGroup==null)
+                    .SingleOrDefault(g => g.LeaderUsername == currentUser.Username);
+                    if (leaderGroup == null)
                     {
                         return StatusCode(204);
                     }
                     currentGroup = leaderGroup;
                 }
 
-                var groupGoals = _dataContext.GroupGoals.Include(gg=>gg.Group).Where(g => g.Group == currentGroup).ToArray();
+                var groupGoals = _dataContext.Goals.Include(g=>g.Workout).Where(g => g.GoalMedium.Group == currentGroup).ToArray();
+                //var groupGoals = _dataContext.Goals.Include(gg => gg.Group).Where(g => g.Group == currentGroup).ToArray();
 
                 var groupDayProgress = new List<object>();
 
@@ -165,39 +166,38 @@ namespace goals_api.Controllers
                     var userGoalProgresses = new List<object>();
                     foreach (var user in currentGroup.Members)
                     {
-                        var userDescription = _dataContext.UserDescriptions.SingleOrDefault(ud => ud.username == user.Username);
-                        var userProgress = _dataContext.GroupGoalProgresses.SingleOrDefault(
-                            ggp => 
+                        //var userDescription = _dataContext.UserDescriptions.SingleOrDefault(ud => ud.username == user.Username);
+                        var userProgress = _dataContext.GoalProgresses.SingleOrDefault(
+                            ggp =>
                             ggp.Goal == goal &&
-                            ggp.MemberUsername == user.Username &&
+                            ggp.User == user &&
                             ggp.CreatedAt.Day == groupProgressDto.GroupProgressDate.Day &&
                             ggp.CreatedAt.Month == groupProgressDto.GroupProgressDate.Month &&
                             ggp.CreatedAt.Year == groupProgressDto.GroupProgressDate.Year);
-                        if(userProgress == null)
+                        if (userProgress == null)
                         {
                             // sukurimas
                             if (today.Day == groupProgressDto.GroupProgressDate.Day &&
                                 today.Month == groupProgressDto.GroupProgressDate.Month &&
                                 today.Year == groupProgressDto.GroupProgressDate.Year)
                             {
-                                var newGroupGoalProgress = new GroupGoalProgress
+                                var newGroupGoalProgress = new GoalProgress
                                 {
                                     CreatedAt = today,
                                     Goal = goal,
                                     IsDone = false,
-                                    MemberUsername = user.Username
+                                    User = user
                                 };
-                                _dataContext.GroupGoalProgresses.Add(newGroupGoalProgress);
+                                _dataContext.GoalProgresses.Add(newGroupGoalProgress);
                                 _dataContext.SaveChanges();
                                 userGoalProgresses.Add(
                                     new
                                     {
                                         newGroupGoalProgress.CreatedAt,
-                                        newGroupGoalProgress.MemberUsername,
+                                        newGroupGoalProgress.User,
                                         newGroupGoalProgress.IsDone,
                                         newGroupGoalProgress.Id,
-                                        user,
-                                        userDescription,
+                                        //userDescription,
                                         isDummy = false
                                     });
 
@@ -210,20 +210,20 @@ namespace goals_api.Controllers
                                     CreatedAt = today,
                                     IsDone = false,
                                     user,
-                                    userDescription,
+                                    //userDescription,
                                     isDummy = true
                                 });
                             }
-                        } else
+                        }
+                        else
                         {
                             userGoalProgresses.Add(new
                             {
                                 userProgress.CreatedAt,
-                                userProgress.MemberUsername,
+                                userProgress.User,
                                 userProgress.IsDone,
                                 userProgress.Id,
-                                user,
-                                userDescription,
+                                //userDescription,
                                 isDummy = false
                             });
                         }
@@ -257,19 +257,19 @@ namespace goals_api.Controllers
             try
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                var goalProgress = _dataContext.GroupGoalProgresses.Include(gp => gp.Goal).SingleOrDefault(gp => gp.Id == goalProgressPatchDto.Id);
+                var goalProgress = _dataContext.GoalProgresses.Include(gp => gp.Goal).SingleOrDefault(gp => gp.Id == goalProgressPatchDto.Id);
                 if (goalProgress == null || goalProgress.Goal.GoalType != 1)
                 {
                     return StatusCode(204);
                 }
 
-                if (goalProgress.MemberUsername != currentUser.Username)
+                if (goalProgress.User != currentUser)
                 {
                     return StatusCode(401);
                 }
 
                 goalProgress.IsDone = goalProgressPatchDto.isDone;
-                _dataContext.GroupGoalProgresses.Update(goalProgress);
+                _dataContext.GoalProgresses.Update(goalProgress);
                 _dataContext.SaveChanges();
 
                 return Ok(goalProgress);

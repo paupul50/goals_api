@@ -10,11 +10,13 @@ namespace goals_api.Dtos.User
     {
         [Required]
         [StringLength(50)]
-        public string FirstName { get; set; }
+        public string Firstname { get; set; }
         [Required]
         [StringLength(50)]
-        public string LastName { get; set; }
+        public string Lastname { get; set; }
         [EmailAddress]
+        [StringLength(50)]
+        public string Email { get; set; }
         [StringLength(50)]
         public string Username { get; set; }
         [Required]

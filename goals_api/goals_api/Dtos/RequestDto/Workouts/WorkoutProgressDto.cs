@@ -8,5 +8,6 @@ namespace goals_api.Dtos.RequestDto.Workouts
     public class WorkoutProgressDto
     {
         public int WorkoutProgress { get; set; }
+        public int RoutePointId { get; set; }
     }
 }

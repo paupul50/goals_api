@@ -35,12 +35,12 @@ namespace goals_api.Controllers.GroupControllers
                 {
                     return StatusCode(401);
                 }
-                var groupGoals = _dataContext.GroupGoals.Where(g => g.Group == userGroup);
+                var groupGoals = _dataContext.Goals.Where(g => g.GoalMedium.Group == userGroup);
                 foreach (var goal in groupGoals)
                 {
-                    var groupGoalProgress = _dataContext.GroupGoalProgresses.Where(ggp => ggp.Goal == goal
-                    && ggp.MemberUsername == memberDeleteDto.MemberUsername);
-                    _dataContext.GroupGoalProgresses.RemoveRange(groupGoalProgress);
+                    var groupGoalProgress = _dataContext.GoalProgresses.Where(ggp => ggp.Goal == goal
+                    && ggp.User.Username == memberDeleteDto.MemberUsername);
+                    _dataContext.GoalProgresses.RemoveRange(groupGoalProgress);
                 }
                 userGroup.Members.Remove(userToDelete);
 
@@ -66,12 +66,12 @@ namespace goals_api.Controllers.GroupControllers
                 {
                     return StatusCode(401);
                 }
-                var groupGoals = _dataContext.GroupGoals.Where(g => g.Group == userGroup);
+                var groupGoals = _dataContext.Goals.Where(g => g.GoalMedium.Group == userGroup);
                 foreach (var goal in groupGoals)
                 {
-                    var groupGoalProgress = _dataContext.GroupGoalProgresses.Where(ggp => ggp.Goal == goal
-                    && ggp.MemberUsername == currentUser.Username);
-                    _dataContext.GroupGoalProgresses.RemoveRange(groupGoalProgress);
+                    var groupGoalProgress = _dataContext.GoalProgresses.Where(ggp => ggp.Goal == goal
+                    && ggp.User == currentUser);
+                    _dataContext.GoalProgresses.RemoveRange(groupGoalProgress);
                 }
 
                 userGroup.Members.Remove(currentUser);
@@ -93,16 +93,16 @@ namespace goals_api.Controllers.GroupControllers
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
             try
             {
-                var currentUserGroup = _dataContext.Groups.Include(group=>group.Members).SingleOrDefault(g => g.LeaderUsername == currentUser.Username);
+                var currentUserGroup = _dataContext.Groups.Include(group => group.Members).SingleOrDefault(g => g.LeaderUsername == currentUser.Username);
                 if (currentUserGroup == null)
                 {
                     return StatusCode(401);
                 }
-                var members = currentUserGroup.Members.Select(member=>
+                var members = currentUserGroup.Members.Select(member =>
                 new
                 {
-                    member.FirstName,
-                    member.LastName,
+                    member.Firstname,
+                    member.Lastname,
                     member.Username
                 }
                 );

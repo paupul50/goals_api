@@ -8,7 +8,7 @@ namespace goals_api.Dtos.RequestDto.Comment
     public class CommentDto
     {
         public string CommentTarget { get; set; }
-        public int CommentTargetId { get; set; }
+        public string CommentedUser { get; set; }
         public string Body { get; set; }
     }
 }

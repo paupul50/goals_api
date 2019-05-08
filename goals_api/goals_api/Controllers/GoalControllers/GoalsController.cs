@@ -7,9 +7,11 @@ using goals_api.Dtos.Goals;
 using goals_api.Dtos.RequestDto.Goals;
 using goals_api.Models;
 using goals_api.Models.DataContext;
+using goals_api.Models.Goals;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace goals_api.Controllers
 {
@@ -31,7 +33,46 @@ namespace goals_api.Controllers
             try
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                var userGoalsWithTheSameName = _dataContext.Goals.Where(goal => goal.Name == goalDto.Goalname && goal.User == currentUser);
+                var goalMedium = new GoalMedium();
+                if (goalDto.IsGroupGoal)
+                {
+                    goalMedium = _dataContext.GoalMedia.SingleOrDefault(gm => gm.Group.LeaderUsername == currentUser.Username);
+                }
+                else
+                {
+                    goalMedium = _dataContext.GoalMedia.SingleOrDefault(gm => gm.User == currentUser);
+                }
+                if (goalMedium == null)
+                {
+                    if (goalDto.IsGroupGoal)
+                    {
+                        var currentGroup = _dataContext.Groups.SingleOrDefault(g => g.LeaderUsername == currentUser.Username); //Include(group=>group.Members).
+
+                        if (currentGroup == null)
+                        {
+                            StatusCode(204);
+                        }
+
+                        goalMedium = new GoalMedium
+                        {
+                            Group = currentGroup,
+                            IsGroupMedium = true
+                        };
+                        _dataContext.GoalMedia.Add(goalMedium);
+                        _dataContext.SaveChanges();
+                    }
+                    else
+                    {
+                        goalMedium = new GoalMedium
+                        {
+                            User = currentUser,
+                            IsGroupMedium = false
+                        };
+                        _dataContext.GoalMedia.Add(goalMedium);
+                        _dataContext.SaveChanges();
+                    }
+                }
+                var userGoalsWithTheSameName = _dataContext.Goals.Where(goal => goal.Name == goalDto.Goalname && goal.GoalMedium.User == currentUser);
                 if (userGoalsWithTheSameName.ToArray().Length > 0)
                 {
                     return StatusCode(400);
@@ -42,22 +83,64 @@ namespace goals_api.Controllers
                 switch (goalDto.GoalType)
                 {
                     case 1:
+                        var workout = _dataContext.Workouts.SingleOrDefault(w => w.Id == goalDto.WorkoutId);
                         userGoal = new Goal
                         {
                             Name = goalDto.Goalname,
-                            User = currentUser,
                             CreatedAt = DateTime.Now,
-                            GoalType = 1
+                            GoalType = 1,
+                            GoalMedium = goalMedium,
+                            Workout = workout
                         };
                         break;
                     case 2:
                         userGoal = new Goal
                         {
                             Name = goalDto.Goalname,
-                            User = currentUser,
                             CreatedAt = DateTime.Now,
+                            GoalMedium = goalMedium,
                             GoalType = 2,
-                            WorkoutId = goalDto.WorkoutId
+                            GoalNumberValue = goalDto.GoalNumberValue
+                        };
+                        break;
+                    case 3:
+                        userGoal = new Goal
+                        {
+                            Name = goalDto.Goalname,
+                            CreatedAt = DateTime.Now,
+                            GoalMedium = goalMedium,
+                            GoalType = 3,
+                            GoalNumberValue = goalDto.GoalNumberValue
+
+                        };
+                        break;
+                    case 101:
+                        userGoal = new Goal
+                        {
+                            Name = goalDto.Goalname,
+                            CreatedAt = DateTime.Now,
+                            GoalMedium = goalMedium,
+                            GoalType = 101
+                        };
+                        break;
+                    case 102:
+                        userGoal = new Goal
+                        {
+                            Name = goalDto.Goalname,
+                            CreatedAt = DateTime.Now,
+                            GoalMedium = goalMedium,
+                            GoalNumberValue = goalDto.GoalNumberValue,
+                            GoalType = 102
+                        };
+                        break;
+                    case 203:
+                        userGoal = new Goal
+                        {
+                            Name = goalDto.Goalname,
+                            CreatedAt = DateTime.Now,
+                            GoalMedium = goalMedium,
+                            GoalType = 101
+                            // TODO: Atsitiktinio siekio isrinkimas
                         };
                         break;
                     default:
@@ -66,17 +149,19 @@ namespace goals_api.Controllers
 
                 _dataContext.Goals.Add(userGoal);
                 // progress adda
-                var goalProgressToday = new GoalProgress
+                if (!goalMedium.IsGroupMedium)
                 {
-                    Goal = userGoal,
-                    IsDone = false,
-                    CreatedAt = DateTime.Now
-                };
-                _dataContext.GoalProgresses.Add(goalProgressToday);
-                _dataContext.SaveChanges();
+                    var goalProgressToday = new GoalProgress
+                    {
+                        Goal = userGoal,
+                        IsDone = false,
+                        CreatedAt = DateTime.Now,
+                        User = currentUser
+                    };
+                    _dataContext.GoalProgresses.Add(goalProgressToday);
+                }
 
-                userGoal.User.Token = null;
-                userGoal.User.Password = null;
+                _dataContext.SaveChanges();
 
                 return StatusCode(201);
             }
@@ -94,8 +179,8 @@ namespace goals_api.Controllers
             try
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                var userGoal = _dataContext.Goals.Find(id);
-                if (userGoal.User == currentUser)
+                var userGoal = _dataContext.Goals.Include(g => g.GoalMedium).SingleOrDefault(g => g.GoalMedium.User == currentUser && g.Id == id);
+                if (userGoal.GoalMedium.User == currentUser)
                 {
                     var usergoalProgresses = _dataContext.GoalProgresses.Where(progress => progress.Goal == userGoal);
                     _dataContext.RemoveRange(usergoalProgresses);
@@ -121,16 +206,14 @@ namespace goals_api.Controllers
             try
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                var userGoal = _dataContext.Goals.Find(id);
+                var userGoal = _dataContext.Goals.Include(g => g.GoalMedium).SingleOrDefault(g => g.GoalMedium.User == currentUser && id == g.Id && !g.GoalMedium.IsGroupMedium);
 
-                if (userGoal == null || userGoal.User != currentUser)
+                if (userGoal == null || userGoal.GoalMedium.User != currentUser)
                 {
                     return StatusCode(204);
                 }
-                if (userGoal.User == currentUser)
+                if (userGoal.GoalMedium.User == currentUser)
                 {
-                    userGoal.User.Password = null; // TODO:: return without pass und token
-                    userGoal.User.Token = null;
                     return Ok(userGoal);
                 }
                 else
@@ -153,7 +236,7 @@ namespace goals_api.Controllers
             {
                 var dateToUseForFiletring = DateTime.Now.Date;
 
-                var goals = _dataContext.Goals.Where(g => g.User == currentUser);
+                var goals = _dataContext.Goals.Where(g => g.GoalMedium.User == currentUser);
 
                 var goalsRetunCollection = new List<object>();
 
@@ -188,7 +271,7 @@ namespace goals_api.Controllers
                         goal.Name,
                         goal.CreatedAt,
                         goal.GoalType,
-                        goal.WorkoutId
+                        goal.Workout,
                     },
                     goalProgress = new
                     {
@@ -206,7 +289,8 @@ namespace goals_api.Controllers
                 {
                     Goal = _dataContext.Goals.Find(goal.Id),
                     IsDone = false,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    User = currentUser
                 };
                 // today goal progress creation
                 _dataContext.GoalProgresses.Add(newGoalProgress);
@@ -219,9 +303,8 @@ namespace goals_api.Controllers
                         goal.Name,
                         goal.CreatedAt,
                         goal.GoalType,
-                        goal.WorkoutId
+                        goal.Workout
                     },
-                    // TODO: pervadint sita durna pavadinima
                     goalProgressCollection = new
                     {
                         username = currentUser.Username,
@@ -243,7 +326,7 @@ namespace goals_api.Controllers
             try
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                var goals = _dataContext.Goals.Where(goal => goal.User == currentUser)
+                var goals = _dataContext.Goals.Where(goal => goal.GoalMedium.User == currentUser)
                     .Select(goal => new GoalWithProgressSegmentDto
                     {
                         Id = goal.Id,
@@ -293,7 +376,8 @@ namespace goals_api.Controllers
                             {
                                 Goal = _dataContext.Goals.Find(goal.Id),
                                 IsDone = false,
-                                CreatedAt = DateTime.Now
+                                CreatedAt = DateTime.Now,
+                                User = currentUser
                             };
                             _dataContext.GoalProgresses.Add(goalProgressToday);
 

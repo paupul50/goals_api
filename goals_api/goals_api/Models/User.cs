@@ -8,22 +8,21 @@ namespace goals_api.Models
 {
     public class User
     {
-        [Required]
-        [StringLength(50)]
-        public string FirstName { get; set; }
-        [Required]
-        [StringLength(50)]
-        public string LastName { get; set; }
-        // perdaryt i Key i int su Id, nes problemu sitas s kelia
-        [EmailAddress]
         [Key]
         [StringLength(50)]
         public string Username { get; set; }
+        [Required]
+        public string Firstname { get; set; }
+        [Required]
+        public string Lastname { get; set; }
+        [EmailAddress]
+        public string Email { get; set; }
         [Required]
         public string Password { get; set; }
 
         public string Token { get; set; }
         public string GoogleToken { get; set; }
-        public string GoogleStatus { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string Description { get; set; }
     }
 }

@@ -28,7 +28,7 @@ namespace goals_api.Controllers
         public IActionResult Post([FromBody] CommentDto commentDto)
         {
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
-            var currentUserDescription = _dataContext.UserDescriptions.Single(ud => ud.username == currentUser.Username);
+            var otherUser = _dataContext.Users.Find(commentDto.CommentedUser);
 
             try
             {
@@ -38,12 +38,10 @@ namespace goals_api.Controllers
                     case "profile":
                         newComment.Body = commentDto.Body;
                         newComment.CreatedAt = DateTime.Now;
-                        newComment.Username = currentUser.Username;
-                        newComment.CommentUserDescriptionId = currentUserDescription.Id;
+                        newComment.AuthorUsername = currentUser;
+                        newComment.CommentedUser = otherUser;
 
-                        var tartgetUserDescription = _dataContext.UserDescriptions.Include(ud => ud.Comments).Single( ud => ud.Id == commentDto.CommentTargetId);
-                        tartgetUserDescription.Comments.Add(newComment);
-
+                        _dataContext.Comments.Add(newComment);
                         _dataContext.SaveChanges();
                         break;
                     default:

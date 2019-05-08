@@ -13,5 +13,8 @@ namespace goals_api.Dtos
         public string Goalname { get; set; }
         public int GoalType { get; set; }
         public int WorkoutId { get; set; }
+        public bool IsGroupGoal { get; set; }
+        public int GoalNumberValue { get; set; }
+        public string GoalStringValue { get; set; }
     }
 }

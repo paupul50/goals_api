@@ -81,9 +81,8 @@ namespace goals_api.Controllers.WorkoutControllers
             try
             {
                 var workoutToDelete = _dataContext.Workouts.Find(id);
-                var workoutGoal = _dataContext.Goals.Where(g => g.WorkoutId == id).ToList();
-                var workoutGoal2 = _dataContext.GroupGoals.Where(g => g.WorkoutId == id).ToList();
-                if (workoutToDelete.Creator != currentUser || workoutGoal.Count>1 || workoutGoal2.Count > 1)
+                var workoutGoal = _dataContext.Goals.Where(g => g.Workout.Id == id).ToList();
+                if (workoutToDelete.Creator != currentUser || workoutGoal.Count > 1)
                 {
                     return StatusCode(401);
                 }
@@ -142,9 +141,9 @@ namespace goals_api.Controllers.WorkoutControllers
             {
                 //var userWorkouts = _dataContext.Workouts.Where(w => w.Creator == currentUser).ToList();
 
-                var gworkoutIds = _dataContext.Goals.Where(gg => gg.WorkoutId != 0 && gg.User==currentUser).Select(gg => gg.WorkoutId).ToList();
+                var gworkoutIds = _dataContext.Goals.Include(g => g.Workout).Where(gg => gg.Workout != null && gg.Workout.Creator == currentUser).Select(gg => gg.Workout.Id).ToList();
 
-                var userWorkouts = _dataContext.Workouts.Where(w => !gworkoutIds.Contains(w.Id) && w.Creator==currentUser);
+                var userWorkouts = _dataContext.Workouts.Where(w => !gworkoutIds.Contains(w.Id) && w.Creator == currentUser);
 
                 //var userWorkoutsWithRoutePoints = new List<object>();
 
@@ -177,7 +176,8 @@ namespace goals_api.Controllers.WorkoutControllers
             {
                 //var userWorkouts = _dataContext.Workouts.Where(w => w.Creator == currentUser).ToList();
 
-                var gworkoutIds = _dataContext.GroupGoals.Where(gg => gg.WorkoutId != 0 && gg.Group.LeaderUsername == currentUser.Username).Select(gg => gg.WorkoutId).ToList();
+                //var gworkoutIds = _dataContext.GroupGoals.Where(gg => gg.WorkoutId != 0 && gg.Group.LeaderUsername == currentUser.Username).Select(gg => gg.WorkoutId).ToList();
+                var gworkoutIds = _dataContext.Goals.Include(g => g.GoalMedium).Where(gg => gg.Workout != null && gg.GoalMedium.Group.LeaderUsername == currentUser.Username).Select(gg => gg.Workout.Id).ToList();
 
                 var groupWorkouts = _dataContext.Workouts.Where(w => !gworkoutIds.Contains(w.Id) && w.Creator == currentUser);
 
@@ -212,12 +212,12 @@ namespace goals_api.Controllers.WorkoutControllers
             {
                 var currentGroup = _dataContext.Groups.SingleOrDefault(g => g.Members.Contains(currentUser));
 
-                if(currentGroup==null)
+                if (currentGroup == null)
                 {
                     return Ok();
                 }
 
-                var gworkoutIds = _dataContext.GroupGoals.Where(gg => gg.WorkoutId != 0).Select(gg=> gg.WorkoutId).ToList();
+                var gworkoutIds = _dataContext.Goals.Include(g => g.GoalMedium).Where(gg => gg.GoalMedium.Group == currentGroup && gg.Workout != null).Select(gg => gg.Workout.Id).ToList();
 
                 var workouts = _dataContext.Workouts.Where(w => gworkoutIds.Contains(w.Id));
 
@@ -255,9 +255,9 @@ namespace goals_api.Controllers.WorkoutControllers
                 // patikrinti ar useris grupej, arba userio goal
                 var userWorkout = _dataContext.Workouts.SingleOrDefault(w => w.Id == id);
 
-                userWorkout.Creator = null;
+                //userWorkout.Creator = null;
                 var workoutWithRoutePoints = _dataContext.RoutePoints.Where(rp => rp.Workout == userWorkout);
-                var workoutGoal = _dataContext.Goals.SingleOrDefault(g => g.WorkoutId == id);
+                //var workoutGoal = _dataContext.Goals.SingleOrDefault(g => g.Workout.Id == id);
                 // dar gaut koks cia tikslas, jei yra
 
                 return Ok(new
@@ -267,7 +267,7 @@ namespace goals_api.Controllers.WorkoutControllers
                 });
 
             }
-            catch (Exception)
+            catch (Exception exeption)
             {
 
                 return StatusCode(500);

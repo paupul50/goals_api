@@ -39,42 +39,21 @@ namespace goals_api.Controllers
                 if (user == null)
                     return StatusCode(400);
                 object userResponseObject;
-                if (user.GoogleToken != null)
-                {
-                    var result = await _googleApiService.GetUserData(user);
-                    if (result == "error")
-                    {
-                        userResponseObject = new
-                        {
-                            user.Token,
-                            user.Username
-                        };
-                    }
-                    else
-                    {
-                        userResponseObject = new
-                        {
-                            isGoogleLogged = true,
-                            user.Token,
-                            user.Username
-                        };
-                    }
 
-                }
-                else
+                var result = await _googleApiService.GetUserData(user);
+                var isGoogleLogged = result == "error" || user.GoogleToken == null ? false : true;
+                userResponseObject = new
                 {
-                    userResponseObject = new
-                    {
-                        user.Token,
-                        user.Username
-                    };
-                }
+                    isGoogleLogged,
+                    user.Token,
+                    user.Username
+                };
 
                 return Ok(userResponseObject);
             }
             catch (Exception ex)
             {
-                return Ok(ex);
+                return Ok();
             }
         }
 
@@ -94,17 +73,12 @@ namespace goals_api.Controllers
                 {
                     Username = userCreateDto.Username,
                     Password = BCrypt.Net.BCrypt.HashPassword(userCreateDto.Password),
-                    FirstName = userCreateDto.FirstName,
-                    LastName = userCreateDto.LastName
+                    Firstname = userCreateDto.Firstname,
+                    Lastname = userCreateDto.Lastname,
+                    CreatedAt = DateTime.Now,
+                    Email = userCreateDto.Email
                 };
                 _dataContext.Users.Add(newUser);
-
-                var userDescription = new UserDescription
-                {
-                    username = userCreateDto.Username,
-                    CreateAt = DateTime.Now
-                };
-                _dataContext.UserDescriptions.Add(userDescription);
                 _dataContext.SaveChanges();
 
                 return StatusCode(201);
@@ -123,6 +97,7 @@ namespace goals_api.Controllers
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
                 currentUser.Token = null;
+                currentUser.GoogleToken = null;
                 _dataContext.Users.Update(currentUser);
                 _dataContext.SaveChanges();
 

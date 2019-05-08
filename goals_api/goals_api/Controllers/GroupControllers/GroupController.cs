@@ -30,21 +30,21 @@ namespace goals_api.Controllers
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
             try
             {
-                var userGroup = _dataContext.Groups.Include(ug=>ug.Members).SingleOrDefault(group => group.LeaderUsername == currentUser.Username);
+                var userGroup = _dataContext.Groups.Include(ug => ug.Members).SingleOrDefault(group => group.LeaderUsername == currentUser.Username);
                 if (userGroup == null)
                 {
                     return StatusCode(401);
                 }
-                var groupGoals = _dataContext.GroupGoals.Where(g => g.Group == userGroup).ToList();
+                var groupGoals = _dataContext.Goals.Include(g=>g.GoalMedium).Where(g => g.GoalMedium.Group == userGroup).ToList();
                 foreach (var goal in groupGoals)
                 {
-                    var groupGoalProgress = _dataContext.GroupGoalProgresses.Where(ggp => ggp.Goal == goal).ToList();
-                    _dataContext.GroupGoalProgresses.RemoveRange(groupGoalProgress);
-                    _dataContext.GroupGoals.Remove(goal);
+                    var groupGoalProgress = _dataContext.GoalProgresses.Where(ggp => ggp.Goal == goal).ToList();
+                    _dataContext.GoalProgresses.RemoveRange(groupGoalProgress);
+                    _dataContext.Goals.Remove(goal);
                 }
 
                 userGroup.Members.Clear();
-                
+
                 _dataContext.Groups.Remove(userGroup);
 
                 _dataContext.SaveChanges();
@@ -97,7 +97,7 @@ namespace goals_api.Controllers
                     }
                     return Ok(new { Group = groupInLead, isLeader = true });
                 }
-                return Ok( new { Group = userGroup, isLeader=false });
+                return Ok(new { Group = userGroup, isLeader = false });
             }
             catch (Exception)
             {

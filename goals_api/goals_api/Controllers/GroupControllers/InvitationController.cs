@@ -8,6 +8,7 @@ using goals_api.Models.DataContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace goals_api.Controllers
 {
@@ -29,15 +30,15 @@ namespace goals_api.Controllers
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
             try
             {
-                var invitation = _dataContext.GroupInvitations.SingleOrDefault(i => i.LeaderUsername == invitationAcceptDto.LeaderUsername
-                && i.MemberUsername == currentUser.Username);
-                if (invitation==null)
+                var invitation = _dataContext.GroupInvitations.Include(gi=>gi.Group).SingleOrDefault(i => i.Group.LeaderUsername == invitationAcceptDto.LeaderUsername
+                && i.User == currentUser);
+                if (invitation == null)
                 {
                     return NoContent();
                 }
 
-                var group = _dataContext.Groups.SingleOrDefault(g => g.LeaderUsername == invitation.LeaderUsername);
-                if(group==null)
+                var group = _dataContext.Groups.SingleOrDefault(g => g.LeaderUsername == invitation.Group.LeaderUsername);
+                if (group == null)
                 {
                     _dataContext.GroupInvitations.Remove(invitation);
 
@@ -68,7 +69,7 @@ namespace goals_api.Controllers
                 var currentUserGroup = _dataContext.Groups.SingleOrDefault(g => g.LeaderUsername == currentUser.Username);
                 var invitedUser = _dataContext.Users.Find(invitationDto.MemberUsername);
                 var invitedUserInvitation = _dataContext.GroupInvitations
-                    .SingleOrDefault(gi => gi.LeaderUsername == currentUser.Username && gi.MemberUsername== invitationDto.MemberUsername);
+                    .SingleOrDefault(gi => gi.Group == currentUserGroup && gi.User == invitedUser);
                 if (invitedUser == currentUser || invitedUser == null || currentUserGroup == null || invitedUserInvitation != null)
                 {
                     return StatusCode(400);
@@ -80,8 +81,8 @@ namespace goals_api.Controllers
                 var newInvitation = new GroupInvitation
                 {
                     CreateAt = DateTime.Now,
-                    LeaderUsername = currentUser.Username,
-                    MemberUsername = invitedUser.Username
+                    Group = currentUserGroup,
+                    User = invitedUser
                 };
                 _dataContext.GroupInvitations.Add(newInvitation);
                 _dataContext.SaveChanges();
@@ -117,13 +118,13 @@ namespace goals_api.Controllers
             try
             {
                 var currentUserGroup = _dataContext.Groups.SingleOrDefault(g => g.LeaderUsername == currentUser.Username);
-                if(currentUserGroup == null)
+                if (currentUserGroup == null)
                 {
-                    var userInvitations = _dataContext.GroupInvitations.Where(gi => gi.MemberUsername == currentUser.Username);
+                    var userInvitations = _dataContext.GroupInvitations.Include(gi=>gi.Group).Where(gi => gi.User == currentUser);
 
                     return Ok(userInvitations);
                 }
-                var userSentInvitations = _dataContext.GroupInvitations.Where(gi => gi.LeaderUsername == currentUser.Username);
+                var userSentInvitations = _dataContext.GroupInvitations.Where(gi => gi.Group == currentUserGroup);
 
                 return Ok(userSentInvitations);
             }
@@ -139,13 +140,15 @@ namespace goals_api.Controllers
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
             try
             {
+                var currentUserGroup = _dataContext.Groups.SingleOrDefault(g => g.LeaderUsername == currentUser.Username);
+
                 var groupInvitation = _dataContext.GroupInvitations.Find(id);
-                if(groupInvitation == null)
+                if (groupInvitation == null)
                 {
                     return StatusCode(401);
                 }
-                if(groupInvitation.LeaderUsername == currentUser.Username 
-                    || groupInvitation.MemberUsername == currentUser.Username)
+                if (groupInvitation.Group.LeaderUsername == currentUser.Username
+                    || groupInvitation.User == currentUser)
                 {
                     _dataContext.GroupInvitations.Remove(groupInvitation);
                     _dataContext.SaveChanges();

@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 
 namespace goals_api.Models
 {
-    public class UserDescription
+    public class GroupInvitation
     {
         [Key]
         public int Id { get; set; }
-        public string Description { get; set; }
-        public ICollection<Comment> Comments { get; set; }
-        [Required]
         public DateTime CreateAt { get; set; }
-        public string username { get; set; }
+        public Group Group { get; set; }
+        public User User { get; set; }
     }
 }

@@ -9,8 +9,8 @@ using goals_api.Models.DataContext;
 namespace goals_api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20190415165910_WorkoutProgress")]
-    partial class WorkoutProgress
+    [Migration("20190508095144_goalRework")]
+    partial class goalRework
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,20 +24,19 @@ namespace goals_api.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("AuthorUsernameUsername");
+
                     b.Property<string>("Body");
 
-                    b.Property<int>("CommentUserDescriptionId");
+                    b.Property<string>("CommentedUserUsername");
 
                     b.Property<DateTime>("CreatedAt");
 
-                    b.Property<int?>("UserDescriptionId");
-
-                    b.Property<string>("Username")
-                        .IsRequired();
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserDescriptionId");
+                    b.HasIndex("AuthorUsernameUsername");
+
+                    b.HasIndex("CommentedUserUsername");
 
                     b.ToTable("Comments");
                 });
@@ -49,19 +48,25 @@ namespace goals_api.Migrations
 
                     b.Property<DateTime>("CreatedAt");
 
+                    b.Property<int?>("GoalMediumId");
+
+                    b.Property<int>("GoalNumberValue");
+
+                    b.Property<string>("GoalStringValue");
+
                     b.Property<int>("GoalType");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20);
 
-                    b.Property<string>("Username");
-
-                    b.Property<int>("WorkoutId");
+                    b.Property<int?>("WorkoutId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Username");
+                    b.HasIndex("GoalMediumId");
+
+                    b.HasIndex("WorkoutId");
 
                     b.ToTable("Goals");
                 });
@@ -75,13 +80,41 @@ namespace goals_api.Migrations
 
                     b.Property<int?>("GoalId");
 
+                    b.Property<int>("GoalNumberValue");
+
+                    b.Property<string>("GoalStringValue");
+
                     b.Property<bool>("IsDone");
+
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GoalId");
 
+                    b.HasIndex("Username");
+
                     b.ToTable("GoalProgresses");
+                });
+
+            modelBuilder.Entity("goals_api.Models.Goals.GoalMedium", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("GroupId");
+
+                    b.Property<bool>("IsGroupMedium");
+
+                    b.Property<string>("Username");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("Username");
+
+                    b.ToTable("GoalMedia");
                 });
 
             modelBuilder.Entity("goals_api.Models.Group", b =>
@@ -100,51 +133,6 @@ namespace goals_api.Migrations
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("goals_api.Models.GroupGoal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("CreatedAt");
-
-                    b.Property<int>("GoalType");
-
-                    b.Property<int?>("GroupId");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(20);
-
-                    b.Property<int>("WorkoutId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("GroupGoals");
-                });
-
-            modelBuilder.Entity("goals_api.Models.GroupGoalProgress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("CreatedAt");
-
-                    b.Property<int?>("GoalId");
-
-                    b.Property<bool>("IsDone");
-
-                    b.Property<string>("MemberUsername")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GoalId");
-
-                    b.ToTable("GroupGoalProgresses");
-                });
-
             modelBuilder.Entity("goals_api.Models.GroupInvitation", b =>
                 {
                     b.Property<int>("Id")
@@ -152,11 +140,15 @@ namespace goals_api.Migrations
 
                     b.Property<DateTime>("CreateAt");
 
-                    b.Property<string>("LeaderUsername");
+                    b.Property<int?>("GroupId");
 
-                    b.Property<string>("MemberUsername");
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("Username");
 
                     b.ToTable("GroupInvitations");
                 });
@@ -167,15 +159,21 @@ namespace goals_api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50);
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50);
+                    b.Property<DateTime>("CreatedAt");
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Email");
+
+                    b.Property<string>("Firstname")
+                        .IsRequired();
+
+                    b.Property<string>("GoogleToken");
 
                     b.Property<int?>("GroupId");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50);
+                    b.Property<string>("Lastname")
+                        .IsRequired();
 
                     b.Property<string>("Password")
                         .IsRequired();
@@ -187,22 +185,6 @@ namespace goals_api.Migrations
                     b.HasIndex("GroupId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("goals_api.Models.UserDescription", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("CreateAt");
-
-                    b.Property<string>("Description");
-
-                    b.Property<string>("username");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserDescriptions");
                 });
 
             modelBuilder.Entity("goals_api.Models.Workouts.RoutePoint", b =>
@@ -233,6 +215,26 @@ namespace goals_api.Migrations
                     b.ToTable("RoutePoints");
                 });
 
+            modelBuilder.Entity("goals_api.Models.Workouts.RoutePointProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("IsDone");
+
+                    b.Property<int?>("RoutePointId");
+
+                    b.Property<int?>("WorkoutProgressId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoutePointId");
+
+                    b.HasIndex("WorkoutProgressId");
+
+                    b.ToTable("RoutePointProgresses");
+                });
+
             modelBuilder.Entity("goals_api.Models.Workouts.Workout", b =>
                 {
                     b.Property<int>("Id")
@@ -251,26 +253,6 @@ namespace goals_api.Migrations
                     b.ToTable("Workouts");
                 });
 
-            modelBuilder.Entity("goals_api.Models.Workouts.WorkoutPointProgress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("IsDone");
-
-                    b.Property<int?>("RoutePointId");
-
-                    b.Property<int>("WorkoutPointId");
-
-                    b.Property<int>("WorkoutProgress");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoutePointId");
-
-                    b.ToTable("WorkoutPointProgresses");
-                });
-
             modelBuilder.Entity("goals_api.Models.Workouts.WorkoutProgress", b =>
                 {
                     b.Property<int>("Id")
@@ -280,9 +262,13 @@ namespace goals_api.Migrations
 
                     b.Property<int>("ProgressIndex");
 
+                    b.Property<string>("Username");
+
                     b.Property<int?>("WorkoutId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Username");
 
                     b.HasIndex("WorkoutId");
 
@@ -291,16 +277,24 @@ namespace goals_api.Migrations
 
             modelBuilder.Entity("goals_api.Models.Comment", b =>
                 {
-                    b.HasOne("goals_api.Models.UserDescription")
-                        .WithMany("Comments")
-                        .HasForeignKey("UserDescriptionId");
+                    b.HasOne("goals_api.Models.User", "AuthorUsername")
+                        .WithMany()
+                        .HasForeignKey("AuthorUsernameUsername");
+
+                    b.HasOne("goals_api.Models.User", "CommentedUser")
+                        .WithMany()
+                        .HasForeignKey("CommentedUserUsername");
                 });
 
             modelBuilder.Entity("goals_api.Models.Goal", b =>
                 {
-                    b.HasOne("goals_api.Models.User", "User")
+                    b.HasOne("goals_api.Models.Goals.GoalMedium", "GoalMedium")
                         .WithMany()
-                        .HasForeignKey("Username");
+                        .HasForeignKey("GoalMediumId");
+
+                    b.HasOne("goals_api.Models.Workouts.Workout", "Workout")
+                        .WithMany()
+                        .HasForeignKey("WorkoutId");
                 });
 
             modelBuilder.Entity("goals_api.Models.GoalProgress", b =>
@@ -308,20 +302,32 @@ namespace goals_api.Migrations
                     b.HasOne("goals_api.Models.Goal", "Goal")
                         .WithMany()
                         .HasForeignKey("GoalId");
+
+                    b.HasOne("goals_api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Username");
                 });
 
-            modelBuilder.Entity("goals_api.Models.GroupGoal", b =>
+            modelBuilder.Entity("goals_api.Models.Goals.GoalMedium", b =>
                 {
                     b.HasOne("goals_api.Models.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId");
+
+                    b.HasOne("goals_api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Username");
                 });
 
-            modelBuilder.Entity("goals_api.Models.GroupGoalProgress", b =>
+            modelBuilder.Entity("goals_api.Models.GroupInvitation", b =>
                 {
-                    b.HasOne("goals_api.Models.GroupGoal", "Goal")
+                    b.HasOne("goals_api.Models.Group", "Group")
                         .WithMany()
-                        .HasForeignKey("GoalId");
+                        .HasForeignKey("GroupId");
+
+                    b.HasOne("goals_api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Username");
                 });
 
             modelBuilder.Entity("goals_api.Models.User", b =>
@@ -338,6 +344,17 @@ namespace goals_api.Migrations
                         .HasForeignKey("WorkoutId");
                 });
 
+            modelBuilder.Entity("goals_api.Models.Workouts.RoutePointProgress", b =>
+                {
+                    b.HasOne("goals_api.Models.Workouts.RoutePoint", "RoutePoint")
+                        .WithMany()
+                        .HasForeignKey("RoutePointId");
+
+                    b.HasOne("goals_api.Models.Workouts.WorkoutProgress", "WorkoutProgress")
+                        .WithMany()
+                        .HasForeignKey("WorkoutProgressId");
+                });
+
             modelBuilder.Entity("goals_api.Models.Workouts.Workout", b =>
                 {
                     b.HasOne("goals_api.Models.User", "Creator")
@@ -345,15 +362,12 @@ namespace goals_api.Migrations
                         .HasForeignKey("CreatorUsername");
                 });
 
-            modelBuilder.Entity("goals_api.Models.Workouts.WorkoutPointProgress", b =>
-                {
-                    b.HasOne("goals_api.Models.Workouts.RoutePoint", "RoutePoint")
-                        .WithMany()
-                        .HasForeignKey("RoutePointId");
-                });
-
             modelBuilder.Entity("goals_api.Models.Workouts.WorkoutProgress", b =>
                 {
+                    b.HasOne("goals_api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Username");
+
                     b.HasOne("goals_api.Models.Workouts.Workout", "Workout")
                         .WithMany()
                         .HasForeignKey("WorkoutId");
