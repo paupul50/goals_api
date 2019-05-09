@@ -21,8 +21,8 @@ namespace goals_api.Controllers
         }
 
 
-        [HttpGet]
-        public IActionResult Get()
+        [HttpGet("chart")]
+        public IActionResult GetChart()
         {
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
             try
@@ -49,26 +49,23 @@ namespace goals_api.Controllers
                     counts
                 };
 
-                var counts2 = new List<dynamic>();
-                var names2 = new List<dynamic>();
+                var countsGroup = new List<dynamic>();
+                var namesGroup = new List<dynamic>();
                 var groupGoals = new object();
                 if (currentGroup != null)
                 {
                     var gGoals = _dataContext.Goals.Where(g => g.GoalMedium.Group == currentGroup);
                     foreach (var goal in gGoals)
                     {
-                        counts2.Add(_dataContext.GoalProgresses.Where(g => g.IsDone == true && g.CreatedAt >= today.AddDays(-30) && g.User == currentUser && g.Goal == goal).Count());
-                        names2.Add(goal.Name);
+                        countsGroup.Add(_dataContext.GoalProgresses.Where(g => g.IsDone == true && g.CreatedAt >= today.AddDays(-30) && g.User == currentUser && g.Goal == goal).Count());
+                        namesGroup.Add(goal.Name);
                     }
                     groupGoals = new
                     {
-                        names = names2,
-                        counts = counts2
+                        names = namesGroup,
+                        counts = countsGroup
                     };
                 }
-
-
-
                 return Ok(new
                 {
                     userGoals,
@@ -80,5 +77,35 @@ namespace goals_api.Controllers
                 return StatusCode(500);
             }
         }
+
+        [HttpGet("leaderboard")]
+        public IActionResult GetLeaderBoard()
+        {
+            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            try
+            {
+                var currentGroup = _dataContext.Groups.Include(g => g.Members)
+                    .SingleOrDefault(g => g.Members.Contains(currentUser));
+                var currentMonth = DateTime.Now.Month;
+                var leaderboard = new List<dynamic>();
+                foreach (var member in currentGroup.Members)
+                {
+                    leaderboard.Add(new
+                    {
+                        points = _dataContext.GoalProgresses.Include(gp=>gp.Goal.GoalMedium).Where(g => g.IsDone == true && g.CreatedAt.Month == currentMonth && g.User == member
+                        && g.Goal.GoalMedium.Group==currentGroup).Count(),
+                        username = member.Username
+
+                    });
+                }
+                return Ok(leaderboard.OrderByDescending(item => item.points));
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(500);
+            }
+        }
+
     }
 }
