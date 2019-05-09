@@ -12,5 +12,6 @@ namespace goals_api.Dtos
         public DateTime CreatedAt { get; set; }
         public bool IsDummy { get; set; }
         public int GoalNumberValue { get; set; }
+        public string GoalStringValue { get; set; }
     }
 }

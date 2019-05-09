@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using goals_api.Constants;
 using goals_api.Dtos;
 using goals_api.Dtos.Goals;
 using goals_api.Dtos.RequestDto.Goals;
@@ -133,14 +134,13 @@ namespace goals_api.Controllers
                             GoalType = 102
                         };
                         break;
-                    case 203:
+                    case 201:
                         userGoal = new Goal
                         {
                             Name = goalDto.Goalname,
                             CreatedAt = DateTime.Now,
                             GoalMedium = goalMedium,
-                            GoalType = 101
-                            // TODO: Atsitiktinio siekio isrinkimas
+                            GoalType = 201
                         };
                         break;
                     default:
@@ -151,12 +151,14 @@ namespace goals_api.Controllers
                 // progress adda
                 if (!goalMedium.IsGroupMedium)
                 {
+                    var goalStringValue = userGoal.GoalType == 201 ? RandomGoals.GetRandomGoal() : "";
                     var goalProgressToday = new GoalProgress
                     {
                         Goal = userGoal,
                         IsDone = false,
                         CreatedAt = DateTime.Now,
-                        User = currentUser
+                        User = currentUser,
+                        GoalStringValue = goalStringValue
                     };
                     _dataContext.GoalProgresses.Add(goalProgressToday);
                 }
@@ -271,12 +273,15 @@ namespace goals_api.Controllers
             }
             else
             {
+                var exGaol = _dataContext.Goals.Find(goal.Id);
+                var goalStringValue = exGaol.GoalType == 201 ? RandomGoals.GetRandomGoal() : "";
                 var newGoalProgress = new GoalProgress
                 {
-                    Goal = _dataContext.Goals.Find(goal.Id),
+                    Goal = exGaol,
                     IsDone = false,
                     CreatedAt = DateTime.Now,
-                    User = currentUser
+                    User = currentUser,
+                    GoalStringValue = goalStringValue
                 };
                 // today goal progress creation
                 _dataContext.GoalProgresses.Add(newGoalProgress);
@@ -304,6 +309,7 @@ namespace goals_api.Controllers
                         Name = goal.Name,
                         CreatedAt = goal.CreatedAt,
                         GoalNumberValue = goal.GoalNumberValue,
+                        GoalStringValue = goal.GoalStringValue,
                         GoalType = goal.GoalType,
                         GoalProgressCollection = new List<GoalProgressPoco>()
                     }).ToList();
@@ -321,6 +327,7 @@ namespace goals_api.Controllers
                             IsDone = goalProgress.IsDone,
                             CreatedAt = goalProgress.CreatedAt,
                             GoalNumberValue = goalProgress.GoalNumberValue,
+                            GoalStringValue = goalProgress.GoalStringValue,
                             IsDummy = false
                         }
                         ).OrderBy(progress => progress.CreatedAt).ToList();
@@ -346,9 +353,12 @@ namespace goals_api.Controllers
                         // today goal progress creation
                         else if (date.Month == todayDate.Month && date.Day == todayDate.Day && date.Year == todayDate.Year)
                         {
+                            var exGoal = _dataContext.Goals.Find(goal.Id);
+                            var goalStringValue = exGoal.GoalType == 201 ? RandomGoals.GetRandomGoal() : "";
+
                             var goalProgressToday = new GoalProgress
                             {
-                                Goal = _dataContext.Goals.Find(goal.Id),
+                                Goal = exGoal,
                                 IsDone = false,
                                 CreatedAt = DateTime.Now,
                                 User = currentUser
@@ -361,6 +371,7 @@ namespace goals_api.Controllers
                                 CreatedAt = goalProgressToday.CreatedAt,
                                 IsDone = goalProgressToday.IsDone,
                                 GoalNumberValue = goalProgressToday.GoalNumberValue,
+                                GoalStringValue = goalProgressToday.GoalStringValue,
                                 IsDummy = false
 
                             });

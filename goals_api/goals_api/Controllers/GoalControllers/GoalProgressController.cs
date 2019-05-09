@@ -71,6 +71,11 @@ namespace goals_api.Controllers
                         _dataContext.GoalProgresses.Update(goalProgress);
                         _dataContext.SaveChanges();
                         break;
+                    case 201:
+                        goalProgress.IsDone = goalProgressPatchDto.IsDone;
+                        _dataContext.GoalProgresses.Update(goalProgress);
+                        _dataContext.SaveChanges();
+                        break;
                     default:
                         return StatusCode(401);
                 }

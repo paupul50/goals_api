@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using goals_api.Constants;
 using goals_api.Dtos;
 using goals_api.Dtos.RequestDto.GoalProgress;
 using goals_api.Dtos.RequestDto.Group;
@@ -83,11 +84,14 @@ namespace goals_api.Controllers
             }
             else
             {
+                var exGoal = _dataContext.Goals.Find(goal.Id);
+                var goalStringValue = exGoal.GoalType == 201 ? RandomGoals.GetRandomGoal() : "";
                 var newGoalProgress = new GoalProgress
                 {
-                    Goal = _dataContext.Goals.Find(goal.Id),
+                    Goal = exGoal,
                     User = currentUser,
                     IsDone = false,
+                    GoalStringValue = goalStringValue,
                     CreatedAt = DateTime.Now
                 };
                 // today goal progress creation
@@ -133,6 +137,7 @@ namespace goals_api.Controllers
                 foreach (var goal in groupGoals)
                 {
                     var userGoalProgresses = new List<object>();
+                    var goalStringValue = goal.GoalType == 201 ? RandomGoals.GetRandomGoal() : "";
                     foreach (var user in currentGroup.Members)
                     {
                         //var userDescription = _dataContext.UserDescriptions.SingleOrDefault(ud => ud.username == user.Username);
@@ -155,6 +160,7 @@ namespace goals_api.Controllers
                                     CreatedAt = today,
                                     Goal = goal,
                                     IsDone = false,
+                                    GoalStringValue = goalStringValue,
                                     User = user
                                 };
                                 _dataContext.GoalProgresses.Add(newGroupGoalProgress);
