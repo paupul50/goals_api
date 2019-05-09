@@ -40,8 +40,8 @@ namespace goals_api.Controllers
                     return StatusCode(400);
                 object userResponseObject;
 
-                var result = await _googleApiService.GetUserData(user);
-                var isGoogleLogged = result == "error" || user.GoogleToken == null ? false : true;
+                var result = await _googleApiService.UpdateAllData(user);
+                var isGoogleLogged = result == "session_end" || user.GoogleToken == null ? false : true;
                 userResponseObject = new
                 {
                     isGoogleLogged,

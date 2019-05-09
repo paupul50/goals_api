@@ -10,6 +10,8 @@ namespace goals_api.Dtos.Goals
         public int Id { get; set; }
         public string Name { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int GoalNumberValue { get; set; }
+        public int GoalType { get; set; }
         public ICollection<GoalProgressPoco> GoalProgressCollection { get; set; }
     }
 }

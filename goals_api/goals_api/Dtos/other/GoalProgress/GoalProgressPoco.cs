@@ -11,5 +11,6 @@ namespace goals_api.Dtos
         public bool IsDone { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsDummy { get; set; }
+        public int GoalNumberValue { get; set; }
     }
 }

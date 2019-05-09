@@ -9,6 +9,8 @@ namespace goals_api.Services
 {
     public interface IGoogleApiService
     {
-        Task<string> GetUserData(User user);
+        Task<string> UpdateAllData(User user);
+        Task<string> UpdateUserStepsData(User user);
+        Task<string> UpdateUserCaloriesData(User user);
     }
 }

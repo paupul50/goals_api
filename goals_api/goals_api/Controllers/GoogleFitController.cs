@@ -57,13 +57,14 @@ namespace goals_api.Controllers
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
 
-                var result = await _googleApiService.GetUserData(currentUser);
+                var result = await _googleApiService.UpdateAllData(currentUser);
 
-                if (result == "session_end")
+                if (result != "success")
                 {
-                    return Ok(new { error = "Baigėsi sesija." });
+                    return Ok(new { error = result });
                 }
-                return Ok(result);
+
+                return Ok(new { });
             }
             catch (Exception exeption)
             {

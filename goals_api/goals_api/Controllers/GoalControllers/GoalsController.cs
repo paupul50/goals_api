@@ -236,7 +236,7 @@ namespace goals_api.Controllers
             {
                 var dateToUseForFiletring = DateTime.Now.Date;
 
-                var goals = _dataContext.Goals.Where(g => g.GoalMedium.User == currentUser);
+                var goals = _dataContext.Goals.Include(g=>g.Workout).Where(g => g.GoalMedium.User == currentUser);
 
                 var goalsRetunCollection = new List<object>();
 
@@ -265,22 +265,8 @@ namespace goals_api.Controllers
             {
                 return new
                 {
-                    goal = new
-                    {
-                        goal.Id,
-                        goal.Name,
-                        goal.CreatedAt,
-                        goal.GoalType,
-                        goal.Workout,
-                    },
-                    goalProgress = new
-                    {
-                        goalProgress.Id,
-                        goalProgress.CreatedAt,
-                        goalProgress.IsDone,
-                        IsDummy = false
-
-                    }
+                    goal,
+                    goalProgress
                 };
             }
             else
@@ -297,23 +283,8 @@ namespace goals_api.Controllers
                 _dataContext.SaveChanges();
                 return new
                 {
-                    goal = new
-                    {
-                        goal.Id,
-                        goal.Name,
-                        goal.CreatedAt,
-                        goal.GoalType,
-                        goal.Workout
-                    },
-                    goalProgressCollection = new
-                    {
-                        username = currentUser.Username,
-                        Id = newGoalProgress.Id,
-                        CreatedAt = DateTime.Now,
-                        IsDone = false,
-                        IsDummy = false
-
-                    }
+                    goal,
+                    goalProgressCollection = newGoalProgress
                 };
 
             }
@@ -332,6 +303,8 @@ namespace goals_api.Controllers
                         Id = goal.Id,
                         Name = goal.Name,
                         CreatedAt = goal.CreatedAt,
+                        GoalNumberValue = goal.GoalNumberValue,
+                        GoalType = goal.GoalType,
                         GoalProgressCollection = new List<GoalProgressPoco>()
                     }).ToList();
 
@@ -347,6 +320,7 @@ namespace goals_api.Controllers
                             Id = goalProgress.Id,
                             IsDone = goalProgress.IsDone,
                             CreatedAt = goalProgress.CreatedAt,
+                            GoalNumberValue = goalProgress.GoalNumberValue,
                             IsDummy = false
                         }
                         ).OrderBy(progress => progress.CreatedAt).ToList();
@@ -386,6 +360,7 @@ namespace goals_api.Controllers
                                 Id = goalProgressToday.Goal.Id,
                                 CreatedAt = goalProgressToday.CreatedAt,
                                 IsDone = goalProgressToday.IsDone,
+                                GoalNumberValue = goalProgressToday.GoalNumberValue,
                                 IsDummy = false
 
                             });

@@ -47,7 +47,7 @@ namespace goals_api.Controllers
                 //}
                 var dateToUseForFiletring = DateTime.Now.Date;
 
-                var groupGoals = _dataContext.Goals.Where(goal => goal.GoalMedium.Group == currentUserGroup).ToList();
+                var groupGoals = _dataContext.Goals.Include(g=>g.Workout).Where(goal => goal.GoalMedium.Group == currentUserGroup).ToList();
 
                 var groupGoalsRetunCollection = new List<object>();
 
@@ -77,23 +77,8 @@ namespace goals_api.Controllers
             {
                 return new
                 {
-                    goal = new
-                    {
-                        goal.Id,
-                        goal.Name,
-                        goal.CreatedAt,
-                        goal.GoalType,
-                        goal.Workout
-                    },
-                    goalProgress = new
-                    {
-                        username = goalProgress.User,
-                        goalProgress.Id,
-                        goalProgress.CreatedAt,
-                        goalProgress.IsDone,
-                        IsDummy = false
-
-                    }
+                    goal,
+                    goalProgress
                 };
             }
             else
@@ -110,24 +95,8 @@ namespace goals_api.Controllers
                 _dataContext.SaveChanges();
                 return new
                 {
-                    goal = new
-                    {
-                        goal.Id,
-                        goal.Name,
-                        goal.CreatedAt,
-                        goal.GoalType,
-                        goal.Workout
-                    },
-                    // TODO: pervadint sita durna pavadinima
-                    goalProgress = new
-                    {
-                        username = currentUser.Username,
-                        Id = newGoalProgress.Id,
-                        CreatedAt = DateTime.Now,
-                        IsDone = false,
-                        IsDummy = false
-
-                    }
+                    goal,
+                    goalProgress = newGoalProgress
                 };
 
             }
@@ -190,16 +159,7 @@ namespace goals_api.Controllers
                                 };
                                 _dataContext.GoalProgresses.Add(newGroupGoalProgress);
                                 _dataContext.SaveChanges();
-                                userGoalProgresses.Add(
-                                    new
-                                    {
-                                        newGroupGoalProgress.CreatedAt,
-                                        newGroupGoalProgress.User,
-                                        newGroupGoalProgress.IsDone,
-                                        newGroupGoalProgress.Id,
-                                        //userDescription,
-                                        isDummy = false
-                                    });
+                                userGoalProgresses.Add(newGroupGoalProgress);
 
                             }
                             else
@@ -217,25 +177,13 @@ namespace goals_api.Controllers
                         }
                         else
                         {
-                            userGoalProgresses.Add(new
-                            {
-                                userProgress.CreatedAt,
-                                userProgress.User,
-                                userProgress.IsDone,
-                                userProgress.Id,
-                                //userDescription,
-                                isDummy = false
-                            });
+                            userGoalProgresses.Add(userProgress);
                         }
                     }
 
                     var goalWithProgresses = new
                     {
-                        goal = new
-                        {
-                            goal.Name,
-                            goal.Id
-                        },
+                        goal,
                         userGoalProgresses
                     };
 
@@ -251,33 +199,33 @@ namespace goals_api.Controllers
             }
         }
 
-        [HttpPatch]
-        public IActionResult UpdateUserGoalProgress([FromBody]GoalProgressPatchDto goalProgressPatchDto)
-        {
-            try
-            {
-                var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                var goalProgress = _dataContext.GoalProgresses.Include(gp => gp.Goal).SingleOrDefault(gp => gp.Id == goalProgressPatchDto.Id);
-                if (goalProgress == null || goalProgress.Goal.GoalType != 1)
-                {
-                    return StatusCode(204);
-                }
+        //[HttpPatch]
+        //public IActionResult UpdateUserGoalProgress([FromBody]GoalProgressPatchDto goalProgressPatchDto)
+        //{
+        //    try
+        //    {
+        //        var currentUser = _dataContext.Users.Find(User.Identity.Name);
+        //        var goalProgress = _dataContext.GoalProgresses.Include(gp => gp.Goal).SingleOrDefault(gp => gp.Id == goalProgressPatchDto.Id);
+        //        if (goalProgress == null || goalProgress.Goal.GoalType != 1)
+        //        {
+        //            return StatusCode(204);
+        //        }
 
-                if (goalProgress.User != currentUser)
-                {
-                    return StatusCode(401);
-                }
+        //        if (goalProgress.User != currentUser)
+        //        {
+        //            return StatusCode(401);
+        //        }
 
-                goalProgress.IsDone = goalProgressPatchDto.isDone;
-                _dataContext.GoalProgresses.Update(goalProgress);
-                _dataContext.SaveChanges();
+        //        goalProgress.IsDone = goalProgressPatchDto.IsDone;
+        //        _dataContext.GoalProgresses.Update(goalProgress);
+        //        _dataContext.SaveChanges();
 
-                return Ok(goalProgress);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500);
-            }
-        }
+        //        return Ok(goalProgress);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(500);
+        //    }
+        //}
     }
 }

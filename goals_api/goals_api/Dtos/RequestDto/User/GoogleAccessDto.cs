@@ -7,7 +7,6 @@ namespace goals_api.Dtos.RequestDto.User
 {
     public class GoogleAccessDto
     {
-        public string State { get; set; }
         public string Token { get; set; }
     }
 }
