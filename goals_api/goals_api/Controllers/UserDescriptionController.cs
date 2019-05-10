@@ -81,14 +81,17 @@ namespace goals_api.Controllers
                 user.Lastname = userDescriptionEditDto.Lastname;
                 user.Description = userDescriptionEditDto.Description;
 
-                var dbPath = UploadImage(userDescriptionEditDto.File);
-
-                if (dbPath == "")
+                if (userDescriptionEditDto.File != null)
                 {
-                    return StatusCode(402);
-                }
+                    var dbPath = UploadImage(userDescriptionEditDto.File);
 
-                user.Image = dbPath;
+                    if (dbPath == "")
+                    {
+                        return StatusCode(402);
+                    }
+
+                    user.Image = dbPath;
+                }
 
                 _dataContext.SaveChanges();
 
