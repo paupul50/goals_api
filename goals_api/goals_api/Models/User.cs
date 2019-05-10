@@ -23,6 +23,7 @@ namespace goals_api.Models
         public string Token { get; set; }
         public string GoogleToken { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string Image { get; set; }
         public string Description { get; set; }
     }
 }

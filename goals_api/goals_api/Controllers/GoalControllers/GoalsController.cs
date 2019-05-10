@@ -303,7 +303,7 @@ namespace goals_api.Controllers
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
                 var goals = _dataContext.Goals.Where(goal => goal.GoalMedium.User == currentUser)
-                    .Select(goal => new GoalWithProgressSegmentDto
+                    .Select(goal => new GoalWithProgressSegmentElement
                     {
                         Id = goal.Id,
                         Name = goal.Name,

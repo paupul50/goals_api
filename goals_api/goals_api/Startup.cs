@@ -16,6 +16,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+
 namespace goals_api
 {
     public class Startup
@@ -76,8 +80,15 @@ namespace goals_api
 
             app.UseAuthentication();
 
-            app.UseMvc();
+            
+            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Resources")),
+                RequestPath = new PathString("/Resources")
+            });
             // app.UseFileServer();
+            app.UseMvc();
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using goals_api.Dtos.RequestDto.User;
 using goals_api.Models.DataContext;
@@ -43,7 +45,7 @@ namespace goals_api.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("other")]
         public IActionResult GetUserDescription(UserDescriptionDto userDescriptionDto)
         {
             try
@@ -66,6 +68,59 @@ namespace goals_api.Controllers
 
                 return StatusCode(500);
             }
+        }
+
+        [HttpPost("edit")]
+        public IActionResult EditUserDescription([FromForm] UserDescriptionEditDto userDescriptionEditDto)
+        {
+            try
+            {
+                var user = _dataContext.Users.Find(User.Identity.Name);
+
+                user.Firstname = userDescriptionEditDto.Firstname;
+                user.Lastname = userDescriptionEditDto.Lastname;
+                user.Description = userDescriptionEditDto.Description;
+
+                var dbPath = UploadImage(userDescriptionEditDto.File);
+
+                if (dbPath == "")
+                {
+                    return StatusCode(402);
+                }
+
+                user.Image = dbPath;
+
+                _dataContext.SaveChanges();
+
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(500);
+            }
+        }
+
+        private string UploadImage(IFormFile uploadedFile)
+        {
+            var file = uploadedFile;
+            var folderName = Path.Combine("Resources", "Images");
+            var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+            if (file.Length > 0)
+            {
+                var fileName = +DateTime.Now.Ticks / 10000 + "_" + ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                var fullPath = Path.Combine(pathToSave, fileName);
+                var dbPath = Path.Combine(folderName, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+
+                return dbPath;
+            }
+
+            return "";
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace goals_api.Dtos.Goals
 {
-    public class GoalWithProgressSegmentDto
+    public class GoalWithProgressSegmentElement
     {
         public int Id { get; set; }
         public string Name { get; set; }
