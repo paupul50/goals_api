@@ -205,33 +205,5 @@ namespace goals_api.Controllers
             }
         }
 
-        //[HttpPatch]
-        //public IActionResult UpdateUserGoalProgress([FromBody]GoalProgressPatchDto goalProgressPatchDto)
-        //{
-        //    try
-        //    {
-        //        var currentUser = _dataContext.Users.Find(User.Identity.Name);
-        //        var goalProgress = _dataContext.GoalProgresses.Include(gp => gp.Goal).SingleOrDefault(gp => gp.Id == goalProgressPatchDto.Id);
-        //        if (goalProgress == null || goalProgress.Goal.GoalType != 1)
-        //        {
-        //            return StatusCode(204);
-        //        }
-
-        //        if (goalProgress.User != currentUser)
-        //        {
-        //            return StatusCode(401);
-        //        }
-
-        //        goalProgress.IsDone = goalProgressPatchDto.IsDone;
-        //        _dataContext.GoalProgresses.Update(goalProgress);
-        //        _dataContext.SaveChanges();
-
-        //        return Ok(goalProgress);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(500);
-        //    }
-        //}
     }
 }

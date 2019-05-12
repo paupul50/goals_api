@@ -70,23 +70,6 @@ namespace goals_api.Controllers
             {
                 return StatusCode(400);
             }
-
-
-
         }
-
-        //private string decodeUserId(string state)
-        //{
-        //    var otherState = state.Split(";")[1];
-        //    string incoming = otherState
-        //        .Replace('_', '/').Replace('-', '+');
-        //    switch (otherState.Length % 4)
-        //    {
-        //        case 2: incoming += "=="; break;
-        //        case 3: incoming += "="; break;
-        //    }
-        //    byte[] bytes = Convert.FromBase64String(incoming);
-        //    return Encoding.ASCII.GetString(bytes);
-        //}
     }
 }

@@ -28,27 +28,39 @@ namespace goals_api.Services
         public async Task<string> UpdateAllData(User user)
         {
             var result = await UpdateUserCaloriesData(user);
-            if (result == "session_end" || result == "error" || result == "no_data")
+            if (isRequestNotSuccessful(result))
             {
                 return result;
             }
 
             result = await UpdateUserStepsData(user);
 
-            if (result == "session_end" || result == "error" || result == "no_data")
+            if (isRequestNotSuccessful(result))
             {
                 return result;
             }
 
             return "success";
         }
-        
+
+        private bool isRequestNotSuccessful(string result)
+        {
+            if (result == "session_end" || result == "error" || result == "no_data")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
 
         public async Task<string> UpdateUserStepsData(User user)
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GoogleToken);
 
-            var stepsGoalProgresses = _dataContext.GoalProgresses.Include(gp=>gp.Goal).Where(gp => gp.User == user && gp.Goal.GoalType == 3);
+            var stepsGoalProgresses = _dataContext.GoalProgresses.Include(gp => gp.Goal).Where(gp => gp.User == user && gp.Goal.GoalType == 3);
 
             return await UpdateStepsProgresses(stepsGoalProgresses);
         }
@@ -75,24 +87,7 @@ namespace goals_api.Services
 
                     }
                 };
-                var bucketByTime = new
-                {
-                    durationMillis = 86400000
-
-                };
-                var tempJesus = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-                var startTime = (new DateTime(today.Year, today.Month, today.Day - 1, 0, 0, 0) - tempJesus).TotalMilliseconds;
-                var endTime = (new DateTime(today.Year, today.Month, today.Day, 23, 59, 59) - tempJesus).TotalMilliseconds;
-                var jsonInString = JsonConvert.SerializeObject(new
-                {
-                    aggregateBy,
-                    bucketByTime,
-                    startTimeMillis = startTime,
-                    endTimeMillis = endTime,
-                });
-
-                var uri = "https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate";
-                var response = await _httpClient.PostAsync(uri, new StringContent(jsonInString, Encoding.UTF8, "application/json"));
+                var response = await PostGoogle(today, aggregateBy);
 
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -112,7 +107,7 @@ namespace goals_api.Services
                 int steps2 = (int)stepsFloat2;
                 foreach (var progress in goalProgresses)
                 {
-                    if(progress.CreatedAt.Day == today.Day)
+                    if (progress.CreatedAt.Day == today.Day)
                     {
                         progress.GoalNumberValue = steps2;
                     }
@@ -149,24 +144,8 @@ namespace goals_api.Services
 
                     }
                 };
-                var bucketByTime = new
-                {
-                    durationMillis = 86400000
 
-                };
-                var tempJesus = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-                var startTime = (new DateTime(today.Year, today.Month, today.Day - 1, 0, 0, 0) - tempJesus).TotalMilliseconds;
-                var endTime = (new DateTime(today.Year, today.Month, today.Day, 23, 59, 59) - tempJesus).TotalMilliseconds;
-                var jsonInString = JsonConvert.SerializeObject(new
-                {
-                    aggregateBy,
-                    bucketByTime,
-                    startTimeMillis = startTime,
-                    endTimeMillis = endTime,
-                });
-
-                var uri = "https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate";
-                var response = await _httpClient.PostAsync(uri, new StringContent(jsonInString, Encoding.UTF8, "application/json"));
+                var response = await PostGoogle(today, aggregateBy);
 
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {
@@ -205,6 +184,28 @@ namespace goals_api.Services
             {
                 return "error";
             }
+        }
+
+        private async Task<HttpResponseMessage> PostGoogle(DateTime dateTime, List<dynamic> aggregateBy)
+        {
+            var bucketByTime = new
+            {
+                durationMillis = 86400000
+
+            };
+            var tempJesus = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            var startTime = (new DateTime(dateTime.Year, dateTime.Month, dateTime.Day - 1, 0, 0, 0) - tempJesus).TotalMilliseconds;
+            var endTime = (new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 23, 59, 59) - tempJesus).TotalMilliseconds;
+            var jsonInString = JsonConvert.SerializeObject(new
+            {
+                aggregateBy,
+                bucketByTime,
+                startTimeMillis = startTime,
+                endTimeMillis = endTime,
+            });
+
+            var uri = "https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate";
+            return await _httpClient.PostAsync(uri, new StringContent(jsonInString, Encoding.UTF8, "application/json"));
         }
     }
 }

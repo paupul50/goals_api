@@ -8,7 +8,6 @@ namespace goals_api.Models.Workouts
     public class RoutePointProgress
     {
         public int Id { get; set; }
-        //public int WorkoutPointId { get; set; } // nereikia?
         public bool IsDone { get; set; }
         public WorkoutProgress WorkoutProgress { get; set; }
         public RoutePoint RoutePoint { get; set; }
