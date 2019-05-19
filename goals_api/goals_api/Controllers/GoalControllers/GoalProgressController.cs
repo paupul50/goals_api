@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using goals_api.Dtos.RequestDto.GoalProgress;
 using goals_api.Models;
 using goals_api.Models.DataContext;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace goals_api.Controllers
+namespace goals_api.Controllers.GoalControllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -21,7 +18,7 @@ namespace goals_api.Controllers
 
         public GoalProgressController(DataContext dataContext)
         {
-            this._dataContext = dataContext;
+            _dataContext = dataContext;
         }
 
         [HttpPatch]
@@ -30,7 +27,7 @@ namespace goals_api.Controllers
             try
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                GoalProgress goalProgress = new GoalProgress();
+                GoalProgress goalProgress;
                 if (goalProgressPatchDto.IsGroup)
                 {
                     var currentGroup = _dataContext.Groups.Include(g => g.Members)

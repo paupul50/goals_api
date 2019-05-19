@@ -51,7 +51,7 @@ namespace goals_api.Controllers
 
                 return Ok(userResponseObject);
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 return Ok();
             }

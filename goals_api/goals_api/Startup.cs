@@ -42,7 +42,8 @@ namespace goals_api
 
             // configure jwt authentication
             var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            //var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            var key = Encoding.ASCII.GetBytes("svyS4amFMXueo9Kffcar7VDxOZxSNHXMZoodYWjF");
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -64,8 +65,9 @@ namespace goals_api
             // configure DI for application services
             services.AddScoped<IUserService, UserService>();
             services.AddEntityFrameworkSqlServer().AddDbContext<DataContext>(options
-                => options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
-
+                // because of testing
+                //=> options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
+                => options.UseMySql("server=localhost; port=3306;database=goals_app;user=root;password="));
             services.AddTransient<IGoogleApiService, GoogleApiService>();
         }
 

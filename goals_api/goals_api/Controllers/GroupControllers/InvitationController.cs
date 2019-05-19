@@ -68,9 +68,13 @@ namespace goals_api.Controllers
             {
                 var currentUserGroup = _dataContext.Groups.SingleOrDefault(g => g.LeaderUsername == currentUser.Username);
                 var invitedUser = _dataContext.Users.Find(invitationDto.MemberUsername);
+                if (currentUserGroup == null || invitedUser == null)
+                {
+                    return StatusCode(204);
+                }
                 var invitedUserInvitation = _dataContext.GroupInvitations
                     .SingleOrDefault(gi => gi.Group == currentUserGroup && gi.User == invitedUser);
-                if (invitedUser == currentUser || invitedUser == null || currentUserGroup == null || invitedUserInvitation != null)
+                if (invitedUser == currentUser  || invitedUserInvitation != null)
                 {
                     return StatusCode(400);
                 }

@@ -25,7 +25,7 @@ namespace goals_api.Controllers
 
         public GoalsController(DataContext dataContext)
         {
-            this._dataContext = dataContext;
+            _dataContext = dataContext;
         }
 
         [HttpPost("create")]
@@ -34,20 +34,13 @@ namespace goals_api.Controllers
             try
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
-                var goalMedium = new GoalMedium();
-                if (goalDto.IsGroupGoal)
-                {
-                    goalMedium = _dataContext.GoalMedia.SingleOrDefault(gm => gm.Group.LeaderUsername == currentUser.Username);
-                }
-                else
-                {
-                    goalMedium = _dataContext.GoalMedia.SingleOrDefault(gm => gm.User == currentUser);
-                }
+                var goalMedium = goalDto.IsGroupGoal ? _dataContext.GoalMedia.SingleOrDefault(gm => gm.Group.LeaderUsername == currentUser.Username) 
+                    : _dataContext.GoalMedia.SingleOrDefault(gm => gm.User == currentUser);
                 if (goalMedium == null)
                 {
                     if (goalDto.IsGroupGoal)
                     {
-                        var currentGroup = _dataContext.Groups.SingleOrDefault(g => g.LeaderUsername == currentUser.Username); //Include(group=>group.Members).
+                        var currentGroup = _dataContext.Groups.SingleOrDefault(g => g.LeaderUsername == currentUser.Username);
 
                         if (currentGroup == null)
                         {
@@ -76,7 +69,7 @@ namespace goals_api.Controllers
                 var userGoalsWithTheSameName = _dataContext.Goals.Where(goal => goal.Name == goalDto.Goalname && goal.GoalMedium.User == currentUser);
                 if (userGoalsWithTheSameName.ToArray().Length > 0)
                 {
-                    return StatusCode(400);
+                    return StatusCode(409);
                 }
 
                 Goal userGoal;
@@ -182,7 +175,7 @@ namespace goals_api.Controllers
             {
                 var currentUser = _dataContext.Users.Find(User.Identity.Name);
                 var userGoal = _dataContext.Goals.Include(g => g.GoalMedium).SingleOrDefault(g => g.GoalMedium.User == currentUser && g.Id == id);
-                if (userGoal.GoalMedium.User == currentUser)
+                if (userGoal !=null && userGoal.GoalMedium.User == currentUser)
                 {
                     var usergoalProgresses = _dataContext.GoalProgresses.Where(progress => progress.Goal == userGoal);
                     _dataContext.RemoveRange(usergoalProgresses);
@@ -192,7 +185,7 @@ namespace goals_api.Controllers
                 }
                 else
                 {
-                    return StatusCode(400);
+                    return StatusCode(401);
                 }
             }
             catch (Exception)
@@ -212,7 +205,7 @@ namespace goals_api.Controllers
 
                 if (userGoal == null || userGoal.GoalMedium.User != currentUser)
                 {
-                    return StatusCode(204);
+                    return StatusCode(401);
                 }
                 if (userGoal.GoalMedium.User == currentUser)
                 {
@@ -249,7 +242,7 @@ namespace goals_api.Controllers
 
                 return Ok(goalsRetunCollection);
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
                 return StatusCode(500);

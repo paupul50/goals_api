@@ -1,0 +1,17 @@
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\goals_api.IntergrationTests.deps.json
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\goals_api.IntergrationTests.runtimeconfig.json
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\goals_api.IntergrationTests.runtimeconfig.dev.json
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\goals_api.IntergrationTests.dll
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\obj\Debug\netcoreapp2.1\goals_api.IntergrationTests.csprojAssemblyReference.cache
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\obj\Debug\netcoreapp2.1\goals_api.IntergrationTests.csproj.CoreCompileInputs.cache
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\obj\Debug\netcoreapp2.1\goals_api.IntergrationTests.AssemblyInfoInputs.cache
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\obj\Debug\netcoreapp2.1\goals_api.IntergrationTests.AssemblyInfo.cs
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\xunit.runner.visualstudio.dotnetcore.testadapter.dll
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\xunit.runner.reporters.netcoreapp10.dll
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\xunit.runner.utility.netcoreapp10.dll
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\goals_api.IntergrationTests.pdb
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\goals_api.dll
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\bin\Debug\netcoreapp2.1\goals_api.pdb
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\obj\Debug\netcoreapp2.1\goals_api.IntergrationTests.csproj.CopyComplete
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\obj\Debug\netcoreapp2.1\goals_api.IntergrationTests.dll
+C:\Users\pulei\OneDrive\Documents\goals_api\goals_api\goals_api.IntergrationTests\obj\Debug\netcoreapp2.1\goals_api.IntergrationTests.pdb

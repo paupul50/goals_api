@@ -34,7 +34,7 @@ namespace goals_api.Controllers.WorkoutControllers
 
                 if (unfinishedWorkoutProgress != null)
                 {
-                    return StatusCode(401);
+                    return StatusCode(409);
                 }
                 var workout = _dataContext.Workouts.SingleOrDefault(w => w.Id == workoutProgressCreateDto.Id);
                 var workoutPoints = _dataContext.RoutePoints.Where(rp => rp.Workout == workout).ToList();
@@ -57,13 +57,12 @@ namespace goals_api.Controllers.WorkoutControllers
                         IsDone = false,
                         RoutePoint = workoutPoint,
                         WorkoutProgress = workoutProgress,
-                        //WorkoutPointId = workoutPoint.Index
                     };
                     _dataContext.RoutePointProgresses.Add(routePointProgress);
                 }
                 _dataContext.SaveChanges();
 
-                return StatusCode(204);
+                return Ok();
             }
             catch (Exception)
             {
@@ -108,7 +107,7 @@ namespace goals_api.Controllers.WorkoutControllers
                 {
                     if (workoutProgress == null || allProgresses == null)
                     {
-                        return StatusCode(404);
+                        return StatusCode(204);
                     }
                 }
                 else
@@ -128,7 +127,7 @@ namespace goals_api.Controllers.WorkoutControllers
 
                 if (progress == null)
                 {
-                    return StatusCode(404);
+                    return StatusCode(204);
                 }
                 // if completed (last point reached)
                 if (allProgresses.Count == workoutProgressDto.WorkoutProgress)
@@ -180,9 +179,9 @@ namespace goals_api.Controllers.WorkoutControllers
                     _dataContext.SaveChanges();
                     return Ok(new { status = 1 });
                 }
-                return StatusCode(501);
+                return StatusCode(204);
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 return StatusCode(500);
             }

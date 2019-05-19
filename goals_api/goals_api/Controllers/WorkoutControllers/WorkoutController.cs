@@ -24,7 +24,7 @@ namespace goals_api.Controllers.WorkoutControllers
             this._dataContext = dataContext;
         }
         [HttpPost]
-        public IActionResult Post([FromBody] WorkoutDto workoutDto)
+        public async Task<IActionResult> Post([FromBody] WorkoutDto workoutDto)
         {
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
 
@@ -36,7 +36,7 @@ namespace goals_api.Controllers.WorkoutControllers
                     Creator = currentUser,
                     Name = workoutDto.Name
                 };
-                _dataContext.Workouts.Add(newWorkout);
+                await _dataContext.Workouts.AddAsync(newWorkout);
 
                 var newWorkoutRoutePointList = new List<RoutePoint>();
 
@@ -62,9 +62,9 @@ namespace goals_api.Controllers.WorkoutControllers
                         Workout = newWorkout
                     });
                 }
-                _dataContext.RoutePoints.AddRange(newWorkoutRoutePointList);
+                await _dataContext.RoutePoints.AddRangeAsync(newWorkoutRoutePointList);
 
-                _dataContext.SaveChanges();
+                await _dataContext.SaveChangesAsync();
 
                 return StatusCode(201);
             }
@@ -75,12 +75,16 @@ namespace goals_api.Controllers.WorkoutControllers
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            var currentUser = await _dataContext.Users.FindAsync(User.Identity.Name);
             try
             {
-                var workoutToDelete = _dataContext.Workouts.Find(id);
+                var workoutToDelete = await _dataContext.Workouts.FindAsync(id);
+                if (workoutToDelete == null)
+                {
+                    return StatusCode(401);
+                }
                 var workoutGoal = _dataContext.Goals.Where(g => g.Workout.Id == id).ToList();
                 if (workoutToDelete.Creator != currentUser || workoutGoal.Count > 1)
                 {
@@ -90,7 +94,7 @@ namespace goals_api.Controllers.WorkoutControllers
                 var workoutRoutePointsToDelete = _dataContext.RoutePoints.Include(rp => rp.Workout).Where(rp => rp.Workout == workoutToDelete);
                 _dataContext.RoutePoints.RemoveRange(workoutRoutePointsToDelete);
                 _dataContext.Workouts.Remove(workoutToDelete);
-                _dataContext.SaveChanges();
+                await _dataContext.SaveChangesAsync();
 
                 return StatusCode(204);
 
@@ -103,26 +107,16 @@ namespace goals_api.Controllers.WorkoutControllers
         }
 
         [HttpGet("user")]
-        public IActionResult GetUserWorkouts()
+        public async Task<IActionResult> GetUserWorkouts()
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            var currentUser = await _dataContext.Users.FindAsync(User.Identity.Name);
             try
             {
                 var userWorkouts = _dataContext.Workouts.Where(w => w.Creator == currentUser).ToList();
 
-                //var userWorkoutsWithRoutePoints = new List<object>();
-
                 foreach (var workout in userWorkouts)
                 {
                     workout.Creator = null;
-                    //var workoutWithRoutePoints = _dataContext.RoutePoints.Where(rp => rp.Workout == workout);
-
-                    //var workoutObject = new
-                    //{
-                    //    workout,
-                    //    workoutWithRoutePoints
-                    //};
-                    //userWorkoutsWithRoutePoints.Add(workoutObject);
                 }
                 return Ok(userWorkouts);
 
@@ -134,30 +128,20 @@ namespace goals_api.Controllers.WorkoutControllers
             }
         }
         [HttpGet("unused")]
-        public IActionResult GetUserUnusedWorkouts()
+        public async Task<IActionResult> GetUserUnusedWorkouts() 
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            var currentUser = await _dataContext.Users.FindAsync(User.Identity.Name);
             try
             {
-                //var userWorkouts = _dataContext.Workouts.Where(w => w.Creator == currentUser).ToList();
 
                 var gworkoutIds = _dataContext.Goals.Include(g => g.Workout).Where(gg => gg.Workout != null && gg.Workout.Creator == currentUser).Select(gg => gg.Workout.Id).ToList();
 
                 var userWorkouts = _dataContext.Workouts.Where(w => !gworkoutIds.Contains(w.Id) && w.Creator == currentUser);
 
-                //var userWorkoutsWithRoutePoints = new List<object>();
 
                 foreach (var workout in userWorkouts)
                 {
                     workout.Creator = null;
-                    //var workoutWithRoutePoints = _dataContext.RoutePoints.Where(rp => rp.Workout == workout);
-
-                    //var workoutObject = new
-                    //{
-                    //    workout,
-                    //    workoutWithRoutePoints
-                    //};
-                    //userWorkoutsWithRoutePoints.Add(workoutObject);
                 }
                 return Ok(userWorkouts);
 
@@ -169,31 +153,19 @@ namespace goals_api.Controllers.WorkoutControllers
             }
         }
         [HttpGet("groupUnused")]
-        public IActionResult GetGroupUnusedWorkouts()
+        public async Task<IActionResult> GetGroupUnusedWorkouts()
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            var currentUser = await _dataContext.Users.FindAsync(User.Identity.Name);
             try
             {
-                //var userWorkouts = _dataContext.Workouts.Where(w => w.Creator == currentUser).ToList();
-
-                //var gworkoutIds = _dataContext.GroupGoals.Where(gg => gg.WorkoutId != 0 && gg.Group.LeaderUsername == currentUser.Username).Select(gg => gg.WorkoutId).ToList();
-                var gworkoutIds = _dataContext.Goals.Include(g => g.GoalMedium).Where(gg => gg.Workout != null && gg.GoalMedium.Group.LeaderUsername == currentUser.Username).Select(gg => gg.Workout.Id).ToList();
+                var gworkoutIds = _dataContext.Goals.Include(g => g.GoalMedium).Where(gg => gg.Workout != null && gg.GoalMedium.Group.LeaderUsername == currentUser.Username)
+                    .Select(gg => gg.Workout.Id).ToList();
 
                 var groupWorkouts = _dataContext.Workouts.Where(w => !gworkoutIds.Contains(w.Id) && w.Creator == currentUser);
-
-                //var userWorkoutsWithRoutePoints = new List<object>();
 
                 foreach (var workout in groupWorkouts)
                 {
                     workout.Creator = null;
-                    //var workoutWithRoutePoints = _dataContext.RoutePoints.Where(rp => rp.Workout == workout);
-
-                    //var workoutObject = new
-                    //{
-                    //    workout,
-                    //    workoutWithRoutePoints
-                    //};
-                    //userWorkoutsWithRoutePoints.Add(workoutObject);
                 }
                 return Ok(groupWorkouts);
 
@@ -205,36 +177,25 @@ namespace goals_api.Controllers.WorkoutControllers
             }
         }
         [HttpGet("group")]
-        public IActionResult GetGroupWorkouts()
+        public async Task<IActionResult> GetGroupWorkouts()
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            var currentUser = await _dataContext.Users.FindAsync(User.Identity.Name);
             try
             {
                 var currentGroup = _dataContext.Groups.SingleOrDefault(g => g.Members.Contains(currentUser));
 
                 if (currentGroup == null)
                 {
-                    return Ok();
+                    return StatusCode(204);
                 }
 
                 var gworkoutIds = _dataContext.Goals.Include(g => g.GoalMedium).Where(gg => gg.GoalMedium.Group == currentGroup && gg.Workout != null).Select(gg => gg.Workout.Id).ToList();
 
                 var workouts = _dataContext.Workouts.Where(w => gworkoutIds.Contains(w.Id));
 
-
-                //var userWorkoutsWithRoutePoints = new List<object>();
-
                 foreach (var workout in workouts)
                 {
                     workout.Creator = null;
-                    //var workoutWithRoutePoints = _dataContext.RoutePoints.Where(rp => rp.Workout == workout);
-
-                    //var workoutObject = new
-                    //{
-                    //    workout,
-                    //    workoutWithRoutePoints
-                    //};
-                    //userWorkoutsWithRoutePoints.Add(workoutObject);
                 }
                 return Ok(workouts);
 
@@ -247,18 +208,20 @@ namespace goals_api.Controllers.WorkoutControllers
         }
 
         [HttpGet("{id:int}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            var currentUser = await _dataContext.Users.FindAsync(User.Identity.Name);
             try
             {
-                // patikrinti ar useris grupej, arba userio goal
-                var userWorkout = _dataContext.Workouts.SingleOrDefault(w => w.Id == id);
+                var userWorkout = await _dataContext.Workouts.SingleOrDefaultAsync(w => w.Id == id);
 
-                //userWorkout.Creator = null;
+                if(userWorkout == null)
+                {
+                    return StatusCode(204);
+                }
+                
+
                 var workoutWithRoutePoints = _dataContext.RoutePoints.Where(rp => rp.Workout == userWorkout);
-                //var workoutGoal = _dataContext.Goals.SingleOrDefault(g => g.Workout.Id == id);
-                // dar gaut koks cia tikslas, jei yra
 
                 return Ok(new
                 {
@@ -267,7 +230,7 @@ namespace goals_api.Controllers.WorkoutControllers
                 });
 
             }
-            catch (Exception exeption)
+            catch (Exception )
             {
 
                 return StatusCode(500);

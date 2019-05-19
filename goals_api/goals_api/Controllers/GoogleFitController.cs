@@ -33,17 +33,17 @@ namespace goals_api.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] GoogleAccessDto googleAccessDto)
+        public async Task<IActionResult> Post([FromBody] GoogleAccessDto googleAccessDto)
         {
             try
             {
-                var currentUser = _dataContext.Users.Find(User.Identity.Name);
+                var currentUser = await _dataContext.Users.FindAsync(User.Identity.Name);
                 currentUser.GoogleToken = googleAccessDto.Token;
                 _dataContext.Users.Update(currentUser);
                 _dataContext.SaveChanges();
                 return Ok();
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 return StatusCode(500);
             }
@@ -66,7 +66,7 @@ namespace goals_api.Controllers
 
                 return Ok(new { });
             }
-            catch (Exception exeption)
+            catch (Exception )
             {
                 return StatusCode(400);
             }

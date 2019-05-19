@@ -36,10 +36,15 @@ namespace goals_api.Controllers
 
                 if (currentGroup == null)
                 {
-                    StatusCode(204);
+                    return StatusCode(401);
                 }
 
-                var groupGoal = _dataContext.Goals.Find(id);
+                var groupGoal = _dataContext.Goals.Include(g=>g.GoalMedium).SingleOrDefault(g=>g.Id == id);
+
+                if (groupGoal == null || groupGoal.GoalMedium.Group != currentGroup)
+                {
+                    return StatusCode(401);
+                }
 
                 var groupGoalProgresses = _dataContext.GoalProgresses.Where(progress => progress.Goal == groupGoal);
                 _dataContext.GoalProgresses.RemoveRange(groupGoalProgresses);
@@ -63,12 +68,12 @@ namespace goals_api.Controllers
                 var groupGoal = _dataContext.Goals.Include(gg => gg.GoalMedium.Group).SingleOrDefault(gg => gg.Id == id);
                 if (groupGoal == null)
                 {
-                    return StatusCode(204);
+                    return StatusCode(401);
                 }
 
                 if (!groupGoal.GoalMedium.Group.Members.Contains(currentUser) && groupGoal.GoalMedium.Group.LeaderUsername != currentUser.Username)
                 {
-                    return StatusCode(204);
+                    return StatusCode(401);
                 }
 
                 return Ok(groupGoal);

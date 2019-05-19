@@ -63,6 +63,17 @@ namespace goals_api.Controllers
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
             try
             {
+                var userGroup = _dataContext.Groups.SingleOrDefault(group => group.Members.Contains(currentUser)); // .Include(group=>group.Members)
+                if (userGroup != null)
+                {
+                    return StatusCode(401);
+                }
+                var groupInLead = _dataContext.Groups.SingleOrDefault(group => group.LeaderUsername == currentUser.Username);
+                if (groupInLead != null)
+                {
+                    return StatusCode(401);
+                }
+
                 var newGroup = new Group
                 {
                     GroupName = groupDto.GroupName,

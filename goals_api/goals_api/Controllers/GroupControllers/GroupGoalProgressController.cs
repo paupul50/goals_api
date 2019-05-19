@@ -42,7 +42,7 @@ namespace goals_api.Controllers
                 var currentUserGroup = _dataContext.Groups.SingleOrDefault(group => group.Members.Contains(currentUser));
                 if (currentUserGroup == null)
                 {
-                    return Ok();
+                    return StatusCode(204);
                 }
                 //currentUserGroup = userGroup;
                 //}

@@ -26,12 +26,11 @@ namespace goals_api.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetCurrentUserDescription()
+        public async Task<IActionResult> GetCurrentUserDescription()
         {
             try
             {
-                var user = _dataContext.Users.Find(User.Identity.Name);
-                // currentUser.UserDescription = _dataContext.UserDescriptions.Include(ud => ud.Comments).Single(ud => ud.Id == currentUser.DescriptionId);
+                var user = await _dataContext.Users.FindAsync(User.Identity.Name);
                 var userComments = _dataContext.Comments.Where(c => c.CommentedUser == user);
                 return Ok(new {
                     user,
@@ -46,16 +45,15 @@ namespace goals_api.Controllers
         }
 
         [HttpPost("other")]
-        public IActionResult GetUserDescription(UserDescriptionDto userDescriptionDto)
+        public async Task<IActionResult> GetUserDescription(UserDescriptionDto userDescriptionDto)
         {
             try
             {
-                var user = _dataContext.Users.Find(userDescriptionDto.Username);
+                var user = await _dataContext.Users.FindAsync(userDescriptionDto.Username);
                 if(user == null)
                 {
-                    return StatusCode(404);
+                    return StatusCode(204);
                 }
-                // currentUser.UserDescription = _dataContext.UserDescriptions.Include(ud => ud.Comments).Single(ud => ud.Id == currentUser.DescriptionId);
                 var userComments = _dataContext.Comments.Where(c => c.CommentedUser == user);
                 return Ok(new
                 {
@@ -71,29 +69,29 @@ namespace goals_api.Controllers
         }
 
         [HttpPost("edit")]
-        public IActionResult EditUserDescription([FromForm] UserDescriptionEditDto userDescriptionEditDto)
+        public async Task<IActionResult> EditUserDescription([FromForm] UserDescriptionEditDto userDescriptionEditDto)
         {
             try
             {
-                var user = _dataContext.Users.Find(User.Identity.Name);
+                var user = await _dataContext.Users.FindAsync(User.Identity.Name);
 
                 user.Firstname = userDescriptionEditDto.Firstname;
                 user.Lastname = userDescriptionEditDto.Lastname;
                 user.Description = userDescriptionEditDto.Description;
 
-                if (userDescriptionEditDto.File != null)
+                if (userDescriptionEditDto.File != null && userDescriptionEditDto.File.FileName != "integration")
                 {
                     var dbPath = UploadImage(userDescriptionEditDto.File);
 
                     if (dbPath == "")
                     {
-                        return StatusCode(402);
+                        return StatusCode(404);
                     }
 
                     user.Image = dbPath;
                 }
 
-                _dataContext.SaveChanges();
+                await _dataContext.SaveChangesAsync();
 
                 return Ok();
             }

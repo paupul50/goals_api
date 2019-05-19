@@ -22,13 +22,13 @@ namespace goals_api.Controllers
 
 
         [HttpGet("chart")]
-        public IActionResult GetChart()
+        public async Task<IActionResult> GetChart()
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            var currentUser = await _dataContext.Users.FindAsync(User.Identity.Name);
             try
             {
-                var currentGroup = _dataContext.Groups.Include(g => g.Members)
-                    .SingleOrDefault(g => g.Members.Contains(currentUser));
+                var currentGroup = await _dataContext.Groups.Include(g => g.Members)
+                    .SingleOrDefaultAsync(g => g.Members.Contains(currentUser));
 
                 var today = DateTime.Now;
 
@@ -79,21 +79,25 @@ namespace goals_api.Controllers
         }
 
         [HttpGet("leaderboard")]
-        public IActionResult GetLeaderBoard()
+        public async Task<IActionResult> GetLeaderBoard()
         {
-            var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            var currentUser = await _dataContext.Users.FindAsync(User.Identity.Name);
             try
             {
-                var currentGroup = _dataContext.Groups.Include(g => g.Members)
-                    .SingleOrDefault(g => g.Members.Contains(currentUser));
+                var currentGroup = await _dataContext.Groups.Include(g => g.Members)
+                    .SingleOrDefaultAsync(g => g.Members.Contains(currentUser));
+                if (currentGroup == null)
+                {
+                    return StatusCode(204);
+                }
                 var currentMonth = DateTime.Now.Month;
                 var leaderboard = new List<dynamic>();
                 foreach (var member in currentGroup.Members)
                 {
                     leaderboard.Add(new
                     {
-                        points = _dataContext.GoalProgresses.Include(gp=>gp.Goal.GoalMedium).Where(g => g.IsDone == true && g.CreatedAt.Month == currentMonth && g.User == member
-                        && g.Goal.GoalMedium.Group==currentGroup).Count(),
+                        points = _dataContext.GoalProgresses.Include(gp => gp.Goal.GoalMedium).Where(g => g.IsDone == true && g.CreatedAt.Month == currentMonth && g.User == member
+                          && g.Goal.GoalMedium.Group == currentGroup).Count(),
                         username = member.Username
 
                     });

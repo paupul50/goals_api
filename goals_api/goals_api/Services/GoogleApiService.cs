@@ -124,7 +124,7 @@ namespace goals_api.Services
 
                 return "success";
             }
-            catch (Exception exe)
+            catch (Exception)
             {
                 return "error";
             }

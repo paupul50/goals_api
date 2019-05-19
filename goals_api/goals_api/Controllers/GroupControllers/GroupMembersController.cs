@@ -30,8 +30,12 @@ namespace goals_api.Controllers.GroupControllers
             try
             {
                 var userGroup = _dataContext.Groups.SingleOrDefault(group => group.LeaderUsername == currentUser.Username);
-                var userToDelete = _dataContext.Users.First(user => user.Username == memberDeleteDto.MemberUsername);
                 if (userGroup == null)
+                {
+                    return StatusCode(401);
+                }
+                var userToDelete = _dataContext.Users.FirstOrDefault(user => user.Username == memberDeleteDto.MemberUsername);
+                if (userToDelete == null)
                 {
                     return StatusCode(401);
                 }
