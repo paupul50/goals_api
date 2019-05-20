@@ -282,7 +282,7 @@ namespace goals_api.Controllers
                 return new
                 {
                     goal,
-                    goalProgressCollection = newGoalProgress
+                    goalProgress = newGoalProgress
                 };
 
             }
@@ -354,7 +354,8 @@ namespace goals_api.Controllers
                                 Goal = exGoal,
                                 IsDone = false,
                                 CreatedAt = DateTime.Now,
-                                User = currentUser
+                                User = currentUser,
+                                GoalStringValue = goalStringValue
                             };
                             _dataContext.GoalProgresses.Add(goalProgressToday);
 

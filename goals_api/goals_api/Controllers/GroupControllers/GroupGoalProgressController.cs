@@ -111,6 +111,7 @@ namespace goals_api.Controllers
         public IActionResult GetUserGoalsWithProgress([FromBody] GroupProgressDto groupProgressDto)
         {
             var currentUser = _dataContext.Users.Find(User.Identity.Name);
+            groupProgressDto.GroupProgressDate = groupProgressDto.GroupProgressDate.AddHours(3);
             try
             {
                 var currentGroup = _dataContext.Groups.Include(g => g.Members)

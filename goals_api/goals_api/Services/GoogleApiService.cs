@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace goals_api.Services
 {
@@ -45,7 +46,7 @@ namespace goals_api.Services
 
         private bool isRequestNotSuccessful(string result)
         {
-            if (result == "session_end" || result == "error" || result == "no_data")
+            if (result == "session_end" || result == "error")
             {
                 return true;
             }
@@ -69,9 +70,9 @@ namespace goals_api.Services
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", user.GoogleToken);
 
-            var stepsGoalProgresses = _dataContext.GoalProgresses.Include(gp => gp.Goal).Where(gp => gp.User == user && gp.Goal.GoalType == 2);
+            var caloriesGoalProgresses = _dataContext.GoalProgresses.Include(gp => gp.Goal).Where(gp => gp.User == user && gp.Goal.GoalType == 2);
 
-            return await UpdateCaloriesProgresses(stepsGoalProgresses);
+            return await UpdateCaloriesProgresses(caloriesGoalProgresses);
         }
         private async Task<string> UpdateCaloriesProgresses(IQueryable<GoalProgress> goalProgresses)
         {
@@ -97,14 +98,35 @@ namespace goals_api.Services
                 var result = await response.Content.ReadAsStringAsync();
 
                 dynamic json = JsonConvert.DeserializeObject(result);
-                if (json.bucket[0].dataset[0].point == null && json.bucket[1].dataset[0].point == null)
+
+                //if (json.bucket[0].dataset[0].point as JObject == null && json.bucket[1].dataset[0].point as JObject == null)
+                //{
+                //    return "no_data";
+                //}
+                string value1 = json.bucket[0].dataset[0].point.ToString();
+                string value2 = json.bucket[1].dataset[0].point.ToString();
+                if (value1 == "[]" && value2=="[]")
                 {
                     return "no_data";
                 }
-                float stepsFloat = json.bucket[0].dataset[0].point[0].value[0].fpVal;
-                int steps = (int)stepsFloat;
-                float stepsFloat2 = json.bucket[1].dataset[0].point[0].value[0].fpVal;
-                int steps2 = (int)stepsFloat2;
+
+                int steps = 0;
+                
+                if (value1 != "[]")
+                {
+                    float stepsFloat = json.bucket[0].dataset[0].point[0].value[0].fpVal;
+                    steps = (int)stepsFloat;
+                }
+
+                int steps2 = 0;
+
+                if (value2 != "[]")
+                {
+                    float stepsFloat2 = json.bucket[1].dataset[0].point[0].value[0].fpVal;
+                    steps2 = (int)stepsFloat2;
+                }
+
+
                 foreach (var progress in goalProgresses)
                 {
                     if (progress.CreatedAt.Day == today.Day)
@@ -155,21 +177,36 @@ namespace goals_api.Services
                 var result = await response.Content.ReadAsStringAsync();
 
                 dynamic json = JsonConvert.DeserializeObject(result);
-                if (json.bucket[0].dataset[0].point == null && json.bucket[1].dataset[0].point == null)
+
+                string value1 = json.bucket[0].dataset[0].point.ToString();
+                string value2 = json.bucket[1].dataset[0].point.ToString();
+                if (value1 == "[]" && value2 == "[]")
                 {
                     return "no_data";
                 }
-                int colories = json.bucket[0].dataset[0].point[0].value[0].intVal;
-                int colories2 = json.bucket[1].dataset[0].point[0].value[0].intVal;
+
+                int calories = 0;
+                int calories2 = 0;
+
+                if (value1 != "[]")
+                {
+                    calories = json.bucket[0].dataset[0].point[0].value[0].intVal;
+                }
+
+                if (value2 != "[]")
+                {
+                    calories2 = json.bucket[1].dataset[0].point[0].value[0].intVal;
+                }
+
                 foreach (var progress in goalProgresses)
                 {
                     if (progress.CreatedAt.Day == today.Day)
                     {
-                        progress.GoalNumberValue = colories2;
+                        progress.GoalNumberValue = calories2;
                     }
                     else
                     {
-                        progress.GoalNumberValue = colories;
+                        progress.GoalNumberValue = calories;
                     }
 
                     progress.IsDone = progress.GoalNumberValue >= progress.Goal.GoalNumberValue ? true : false;

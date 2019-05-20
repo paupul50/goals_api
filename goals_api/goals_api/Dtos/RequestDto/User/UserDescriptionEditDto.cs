@@ -17,7 +17,7 @@ namespace goals_api.Dtos.RequestDto.User
         [StringLength(50)]
         public string Lastname { get; set; }
         [Required]
-        [StringLength(50)]
+        [StringLength(400)]
         public string Description { get; set; }
     }
 }
