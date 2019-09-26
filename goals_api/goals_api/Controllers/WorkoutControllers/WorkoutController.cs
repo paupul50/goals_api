@@ -81,25 +81,39 @@ namespace goals_api.Controllers.WorkoutControllers
             try
             {
                 var workoutToDelete = await _dataContext.Workouts.FindAsync(id);
-                if (workoutToDelete == null)
+                if (workoutToDelete == null || workoutToDelete.Creator!=currentUser)
                 {
                     return StatusCode(401);
                 }
                 var workoutGoal = _dataContext.Goals.Where(g => g.Workout.Id == id).ToList();
                 if (workoutToDelete.Creator != currentUser || workoutGoal.Count > 1)
                 {
-                    return StatusCode(401);
+                    return StatusCode(6000);
                 }
 
                 var workoutRoutePointsToDelete = _dataContext.RoutePoints.Include(rp => rp.Workout).Where(rp => rp.Workout == workoutToDelete);
+
+
+
+                var workoutsProgresses = _dataContext.WorkoutProgresses.Where(w => w.Workout == workoutToDelete);
+                foreach (var temp in workoutRoutePointsToDelete)
+                {
+                    var routePointsProgressesToRemove =
+                        _dataContext.RoutePointProgresses.Where(wrp => wrp.RoutePoint == temp);
+
+                    _dataContext.RoutePointProgresses.RemoveRange(routePointsProgressesToRemove);
+                }
+
+                _dataContext.WorkoutProgresses.RemoveRange(workoutsProgresses);
                 _dataContext.RoutePoints.RemoveRange(workoutRoutePointsToDelete);
                 _dataContext.Workouts.Remove(workoutToDelete);
+                
                 await _dataContext.SaveChangesAsync();
 
                 return StatusCode(204);
 
             }
-            catch (Exception)
+            catch (Exception exception)
             {
 
                 return StatusCode(500);

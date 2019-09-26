@@ -231,8 +231,8 @@ namespace goals_api.Services
 
             };
             var tempJesus = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            var startTime = (new DateTime(dateTime.Year, dateTime.Month, dateTime.Day - 1, 0, 0, 0) - tempJesus).TotalMilliseconds;
-            var endTime = (new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 23, 59, 59) - tempJesus).TotalMilliseconds;
+            var startTime = (new DateTime(dateTime.Year, dateTime.Month, dateTime.Day-2, 21, 0, 0) - tempJesus).TotalMilliseconds;
+            var endTime = (new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 21, 0, 0) - tempJesus).TotalMilliseconds;
             var jsonInString = JsonConvert.SerializeObject(new
             {
                 aggregateBy,

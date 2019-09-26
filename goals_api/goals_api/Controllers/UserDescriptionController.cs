@@ -31,7 +31,7 @@ namespace goals_api.Controllers
             try
             {
                 var user = await _dataContext.Users.FindAsync(User.Identity.Name);
-                var userComments = _dataContext.Comments.Where(c => c.CommentedUser == user);
+                var userComments = _dataContext.Comments.Include(c => c.AuthorUsername).Where(c => c.CommentedUser == user);
                 return Ok(new {
                     user,
                     userComments
@@ -54,7 +54,7 @@ namespace goals_api.Controllers
                 {
                     return StatusCode(204);
                 }
-                var userComments = _dataContext.Comments.Where(c => c.CommentedUser == user);
+                var userComments = _dataContext.Comments.Include(c=>c.AuthorUsername).Where(c => c.CommentedUser == user);
                 return Ok(new
                 {
                     user,

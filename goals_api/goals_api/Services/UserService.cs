@@ -39,7 +39,6 @@ namespace goals_api.Services
 
             if (user.Token != null && tokenHandler.ReadToken(user.Token).ValidTo > DateTime.UtcNow)
             {
-                user.Password = null;
                 return user;
             }
             
@@ -57,8 +56,6 @@ namespace goals_api.Services
             user.Token = tokenHandler.WriteToken(token);
             _dataContext.Update(user);
             _dataContext.SaveChanges();
-
-            user.Password = null;
 
             return user;
         }
